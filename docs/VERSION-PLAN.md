@@ -253,18 +253,48 @@
 
 ---
 
-### 🔲 v0.8 - 文档层
+### ✅ v0.8 - 文档层（已完成）
 
 **目标：** 实现文档生成
 
 **任务清单：**
 | # | 任务 | 状态 |
 |---|------|------|
-| 1 | readme_generator | ⏳ |
-| 2 | changelog_generator | ⏳ |
-| 3 | manifest_generator | ⏳ |
-| 4 | preview_generator | ⏳ |
-| 5 | doc_aggregator | ⏳ |
+| 1 | readme_generator | ✅ |
+| 2 | changelog_generator | ✅ |
+| 3 | manifest_generator | ✅ |
+| 4 | preview_generator | ✅ |
+| 5 | doc_aggregator | ✅ |
+
+**交付物：**
+- [x] readme_generator.py - README 生成器（徽章、功能列表、安装/使用示例）
+- [x] changelog_generator.py - CHANGELOG 生成器（git log 解析、版本分组）
+- [x] manifest_generator.py - 资产清单生成器（JSON/YAML 导出）
+- [x] preview_generator.py - HTML 预览页生成器（组件卡片、关系图、统计）
+- [x] doc_aggregator.py - 文档聚合器（验证、索引、目录结构）
+- [x] __init__.py - 模块导出
+- [x] SKILL.md - 技能文档
+- [x] test_level8.py - 集成测试
+
+**验收标准：**
+- [x] 5 个文档生成器可独立使用
+- [x] Mock 模式测试通过（无需真实 git log/PSD）
+- [x] README 自动检测功能列表
+- [x] CHANGELOG 按版本分组展示
+- [x] Manifest 支持 JSON/YAML 格式
+- [x] Preview HTML 包含组件关系图
+- [x] DocAggregator 验证文档完整性
+
+**完成时间：** 2026-03-25
+
+**v0.8 复盘：**
+- ✅ 5 个文档生成器全部完成
+- ✅ Mock 模式支持无 PSD 环境测试
+- ✅ README 徽章自动生成
+- ✅ CHANGELOG 支持 10 种变更类型
+- ✅ Manifest 支持 JSON/YAML 导出
+- ✅ Preview HTML 包含 SVG 关系图
+- ⚠️ 真实 git log 集成待测试
 
 ---
 
@@ -307,10 +337,10 @@
 | v0.5 | 5 | 5 | 0 | 0 |
 | v0.6 | 5 | 0 | 0 | 5 |
 | v0.7 | 5 | 0 | 0 | 5 |
-| v0.8 | 5 | 0 | 0 | 5 |
+| v0.8 | 5 | 5 | 0 | 0 |
 | v0.9 | 4 | 0 | 0 | 4 |
 | v1.0 | 4 | 0 | 0 | 4 |
-| **总计** | **53** | **35** | **0** | **18** |
+| **总计** | **53** | **40** | **0** | **13** |
 
 ---
 
