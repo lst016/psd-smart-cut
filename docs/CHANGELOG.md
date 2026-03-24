@@ -144,14 +144,25 @@ All notable changes to this project will be documented in this file.
 
 ---
 
-## [v0.8] - 文档层
+## [v0.8] - 文档层 ✅
 
-### Planned
-- [ ] readme_generator
-- [ ] changelog_generator
-- [ ] manifest_generator
-- [ ] preview_generator
-- [ ] doc_aggregator
+### Added
+- readme_generator.py - README 生成器（徽章、功能列表、安装/使用示例）
+- changelog_generator.py - CHANGELOG 生成器（git log 解析、版本分组）
+- manifest_generator.py - 资产清单生成器（JSON/YAML 导出）
+- preview_generator.py - HTML 预览页生成器（组件卡片、关系图、统计）
+- doc_aggregator.py - 文档聚合器（验证、索引、目录结构）
+- __init__.py - 模块导出
+- SKILL.md - 技能文档
+- test_level8.py - 集成测试
+
+### Completed
+- [x] ReadmeGenerator - README 生成器
+- [x] ChangelogGenerator - CHANGELOG 生成器
+- [x] ManifestGenerator - 资产清单生成器
+- [x] PreviewGenerator - HTML 预览页生成器
+- [x] DocAggregator - 文档聚合器
+- [x] 集成测试 - mock 模式测试通过
 
 ---
 
