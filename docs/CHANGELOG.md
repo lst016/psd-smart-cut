@@ -54,15 +54,27 @@ All notable changes to this project will be documented in this file.
 
 ---
 
-## [v0.3] - 识别层
+## [v0.3] - 识别层 ✅
 
-### Planned
-- [ ] screenshot_capturer
-- [ ] region_detector
-- [ ] component_namer
-- [ ] boundary_analyzer
-- [ ] function_analyzer
-- [ ] AI 识别集成
+### Added
+- screenshot_capturer.py - 图层截图捕获器（psd-tools + mock 降级）
+- region_detector.py - 区域检测器（边界矩形、重叠检测、有效区域）
+- component_namer.py - 组件命名器（AI/规则推断、语义化名称）
+- boundary_analyzer.py - 边界分析器（边缘类型、质量分数、切割点）
+- function_analyzer.py - 功能分析器（交互类型、样式属性、功能描述）
+- recognizer.py - 统一识别器（协调所有识别器，批量处理）
+- __init__.py - 模块导出
+- SKILL.md - 技能文档
+- test_level3.py - 集成测试（28 个测试用例）
+
+### Completed
+- [x] ScreenshotCapturer - 图层截图捕获器
+- [x] RegionDetector - 区域检测器
+- [x] ComponentNamer - 组件命名器
+- [x] BoundaryAnalyzer - 边界分析器
+- [x] FunctionAnalyzer - 功能分析器
+- [x] Recognizer - 统一识别接口
+- [x] 集成测试 - 28 个测试用例全部通过（mock 模式）
 
 ---
 

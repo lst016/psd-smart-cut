@@ -94,19 +94,46 @@
 
 ---
 
-### 🔲 v0.3 - 识别层
+### ✅ v0.3 - 识别层（已完成）
 
 **目标：** 实现组件识别 Agent
 
 **任务清单：**
 | # | 任务 | 状态 |
 |---|------|------|
-| 1 | screenshot_capturer | ⏳ |
-| 2 | region_detector | ⏳ |
-| 3 | component_namer | ⏳ |
-| 4 | boundary_analyzer | ⏳ |
-| 5 | function_analyzer | ⏳ |
-| 6 | AI 识别集成 | ⏳ |
+| 1 | screenshot_capturer | ✅ |
+| 2 | region_detector | ✅ |
+| 3 | component_namer | ✅ |
+| 4 | boundary_analyzer | ✅ |
+| 5 | function_analyzer | ✅ |
+| 6 | AI 识别集成 | ✅ |
+
+**交付物：**
+- [x] screenshot_capturer.py - 图层截图捕获器（psd-tools + mock 降级）
+- [x] region_detector.py - 区域检测器（边界矩形、重叠检测、有效区域）
+- [x] component_namer.py - 组件命名器（AI/规则推断、语义化名称）
+- [x] boundary_analyzer.py - 边界分析器（边缘类型、质量分数、切割点）
+- [x] function_analyzer.py - 功能分析器（交互类型、样式属性、功能描述）
+- [x] recognizer.py - 统一识别器（协调所有识别器，批量处理）
+- [x] __init__.py - 模块导出
+- [x] SKILL.md - 技能文档
+- [x] test_level3.py - 集成测试（28 个测试用例）
+
+**验收标准：**
+- [x] 5 个识别器可独立使用
+- [x] Mock 模式测试通过（无需 PSD 文件）
+- [x] 批量处理支持
+- [x] 统一识别接口
+- [x] 结果缓存
+- [x] 集成测试全部通过
+
+**完成时间：** 2026-03-24
+
+**v0.3 复盘：**
+- ✅ 5 个识别器全部完成
+- ✅ Mock 模式支持无 PSD 环境测试
+- ✅ AI 识别支持 MiniMax VLM 接入
+- ⚠️ psd-tools 需在生产环境安装以支持真实 PSD 截图
 
 ---
 
@@ -219,7 +246,7 @@
 |------|--------|------|--------|--------|
 | v0.1 | 8 | 8 | 0 | 0 |
 | v0.2 | 6 | 6 | 0 | 0 |
-| v0.3 | 6 | 0 | 0 | 6 |
+| v0.3 | 6 | 6 | 0 | 0 |
 | v0.4 | 5 | 0 | 0 | 5 |
 | v0.5 | 5 | 0 | 0 | 5 |
 | v0.6 | 5 | 0 | 0 | 5 |
