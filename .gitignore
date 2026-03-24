@@ -6,3 +6,28 @@ python_files = test_*.py
 python_classes = Test*
 python_functions = test_*
 addopts = -v --tb=short
+
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# Logs
+logs/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test
+.pytest_cache/
+.coverage
+htmlcov/

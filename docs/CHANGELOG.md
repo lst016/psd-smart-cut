@@ -122,14 +122,25 @@ All notable changes to this project will be documented in this file.
 
 ---
 
-## [v0.6] - 提取层
+## [v0.6] - 提取层 ✅
 
-### Planned
-- [ ] text_reader
-- [ ] font_analyzer
-- [ ] style_extractor
-- [ ] position_reader
-- [ ] 提取集成测试
+### Added
+- text_reader.py - 文字读取器（文字内容、编码、RTL、特殊字符、段落、对齐）
+- font_analyzer.py - 字体分析器（字体族、大小、粗细、颜色、行高、字间距）
+- style_extractor.py - 样式提取器（不透明度、混合模式、阴影、描边、渐变）
+- position_reader.py - 位置读取器（坐标、尺寸、旋转、锚点、对齐、响应式断点）
+- extractor.py - 统一提取器（协调所有模块、批量处理、JSON 导出）
+- __init__.py - 模块导出
+- SKILL.md - 技能文档
+- test_level6.py - 集成测试（38 个测试用例）
+
+### Completed
+- [x] TextReader - 文字读取器
+- [x] FontAnalyzer - 字体分析器
+- [x] StyleExtractor - 样式提取器
+- [x] PositionReader - 位置读取器
+- [x] Extractor - 统一提取器
+- [x] 集成测试 - 38 个测试用例全部通过（mock 模式）
 
 ---
 
