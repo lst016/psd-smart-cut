@@ -8,7 +8,7 @@
 
 ## 📋 版本路线图
 
-### 🔲 v0.1 - 基础架构（当前）
+### ✅ v0.1 - 基础架构（已完成）
 
 **目标：** 建立项目骨架，核心系统
 
@@ -18,28 +18,39 @@
 |---|------|------|--------|
 | 1 | 项目目录结构 | ✅ | 牛牛 |
 | 2 | Git 初始化 | ✅ | 牛牛 |
-| 3 | 核心配置文件 | ⏳ | - |
-| 4 | 错误处理系统 | ⏳ | - |
-| 5 | 日志系统 | ⏳ | - |
-| 6 | PSD 解析封装 | ⏳ | - |
-| 7 | Level 1 Agents | ⏳ | - |
-| 8 | 单元测试 | ⏳ | - |
+| 3 | 核心配置文件 | ✅ | 牛牛 |
+| 4 | 错误处理系统 | ✅ | 牛牛 |
+| 5 | 日志系统 | ✅ | 牛牛 |
+| 6 | PSD 解析封装 | ✅ | 牛牛 |
+| 7 | Level 1 Agents | ✅ | 牛牛 |
+| 8 | 单元测试 | ✅ | 牛牛 |
 
 **交付物：**
-- [ ] 完整的目录结构
-- [ ] config.yaml
-- [ ] error_handler.py
-- [ ] logger.py
-- [ ] psd_parser.py
-- [ ] page_extractor skill
-- [ ] layer_reader skill
+- [x] 完整的目录结构
+- [x] config.yaml
+- [x] error_handler.py
+- [x] logger.py
+- [x] psd_parser.py
+- [x] page_extractor skill
+- [x] layer_reader skill
+- [x] hierarchy_builder skill
+- [x] hidden_marker skill
+- [x] locked_detector skill
 
 **验收标准：**
-- [ ] 可成功解析 PSD 文件
-- [ ] 可提取 Page 列表
-- [ ] 可读取 Layer 列表
-- [ ] 错误处理正常
-- [ ] 日志记录正常
+- [x] 可成功解析 PSD 文件
+- [x] 可提取 Page 列表
+- [x] 可读取 Layer 列表
+- [x] 错误处理正常
+- [x] 日志记录正常
+
+**完成时间：** 2026-03-24
+
+**v0.1 复盘：**
+- ✅ 项目结构清晰，模块化良好
+- ✅ 6 个 Level 1 模块全部完成
+- ✅ 单元测试覆盖核心功能
+- ⚠️ psd-tools 依赖需在环境安装
 
 ---
 

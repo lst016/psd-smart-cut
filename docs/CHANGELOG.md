@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [v0.1] - 2026-03-24 - 基础架构
+## [v0.1] - 2026-03-24 - 基础架构 ✅
 
 ### Added
 - 项目目录结构创建
@@ -10,14 +10,23 @@ All notable changes to this project will be documented in this file.
 - PRD 文档
 - 技能规范文档
 - 版本计划文档
+- 核心配置文件 (config.yaml)
+- 通用模块 (error_handler, logger, validator, metrics)
+- PSD 解析器 (psd_parser.py)
+- Page 提取器 (page_extractor.py)
+- Layer 读取器 (layer_reader.py)
+- 层级树构建器 (hierarchy_builder.py)
+- 隐藏图层标记器 (hidden_marker.py)
+- 锁定图层检测器 (locked_detector.py)
+- 单元测试 (test_level1.py)
 
-### 待完成
-- [ ] config.yaml 配置文件
-- [ ] error_handler.py 错误处理
-- [ ] logger.py 日志系统
-- [ ] psd_parser.py PSD 解析
-- [ ] Level 1 Agents 实现
-- [ ] 单元测试
+### Completed
+- [x] config.yaml 配置文件
+- [x] error_handler.py 错误处理
+- [x] logger.py 日志系统
+- [x] psd_parser.py PSD 解析
+- [x] Level 1 Agents 实现
+- [x] 单元测试
 
 ---
 
