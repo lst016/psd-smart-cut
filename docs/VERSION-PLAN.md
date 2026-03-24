@@ -137,18 +137,46 @@
 
 ---
 
-### 🔲 v0.4 - 策略层
+### ✅ v0.4 - 策略层（已完成）
 
 **目标：** 实现切割策略 Agent
 
 **任务清单：**
 | # | 任务 | 状态 |
 |---|------|------|
-| 1 | canvas_analyzer | ⏳ |
-| 2 | strategy_selector | ⏳ |
-| 3 | overlap_detector | ⏳ |
-| 4 | quality_evaluator | ⏳ |
-| 5 | 策略集成测试 | ⏳ |
+| 1 | canvas_analyzer | ✅ |
+| 2 | strategy_selector | ✅ |
+| 3 | overlap_detector | ✅ |
+| 4 | quality_evaluator | ✅ |
+| 5 | 策略集成测试 | ✅ |
+
+**交付物：**
+- [x] canvas_analyzer.py - 画布分析器（密度热力图、切割线识别）
+- [x] strategy_selector.py - 策略选择器（5 种策略类型）
+- [x] overlap_detector.py - 重叠检测器（遮挡关系、优先级）
+- [x] quality_evaluator.py - 质量评估器（切割精度、边缘质量）
+- [x] strategy.py - 统一策略器（协调所有模块）
+- [x] __init__.py - 模块导出
+- [x] SKILL.md - 技能文档
+- [x] test_level4.py - 集成测试（29 个测试用例）
+
+**验收标准：**
+- [x] 4 个策略模块可独立使用
+- [x] Mock 模式测试通过（无需 PSD 文件）
+- [x] 批量处理支持
+- [x] 统一策略接口
+- [x] 计划优化功能
+- [x] JSON 导出支持
+- [x] 集成测试全部通过
+
+**完成时间：** 2026-03-24
+
+**v0.4 复盘：**
+- ✅ 4 个策略模块全部完成
+- ✅ Mock 模式支持无 PSD 环境测试
+- ✅ 5 种切割策略（FLAT/GROUP_BY_TYPE/GROUP_BY_PAGE/PRESERVE_HIERARCHY/SMART_MERGE）
+- ✅ 切割计划优化功能
+- ⚠️ 真实 PSD 集成待测试
 
 ---
 
@@ -247,7 +275,7 @@
 | v0.1 | 8 | 8 | 0 | 0 |
 | v0.2 | 6 | 6 | 0 | 0 |
 | v0.3 | 6 | 6 | 0 | 0 |
-| v0.4 | 5 | 0 | 0 | 5 |
+| v0.4 | 5 | 5 | 0 | 0 |
 | v0.5 | 5 | 0 | 0 | 5 |
 | v0.6 | 5 | 0 | 0 | 5 |
 | v0.7 | 5 | 0 | 0 | 5 |

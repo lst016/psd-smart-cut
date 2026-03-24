@@ -78,14 +78,25 @@ All notable changes to this project will be documented in this file.
 
 ---
 
-## [v0.4] - 策略层
+## [v0.4] - 策略层 ✅
 
-### Planned
-- [ ] canvas_analyzer
-- [ ] strategy_selector
-- [ ] overlap_detector
-- [ ] quality_evaluator
-- [ ] 策略集成测试
+### Added
+- canvas_analyzer.py - 画布分析器（密度热力图、切割线识别）
+- strategy_selector.py - 策略选择器（FLAT/GROUP_BY_TYPE/GROUP_BY_PAGE/PRESERVE_HIERARCHY/SMART_MERGE）
+- overlap_detector.py - 重叠检测器（遮挡关系、优先级确定）
+- quality_evaluator.py - 质量评估器（切割精度、边缘质量、效率）
+- strategy.py - 统一策略器（协调所有模块、生成切割计划）
+- __init__.py - 模块导出
+- SKILL.md - 技能文档
+- test_level4.py - 集成测试（29 个测试用例）
+
+### Completed
+- [x] CanvasAnalyzer - 画布分析器
+- [x] StrategySelector - 策略选择器
+- [x] OverlapDetector - 重叠检测器
+- [x] QualityEvaluator - 质量评估器
+- [x] Strategy - 统一策略接口
+- [x] 集成测试 - 29 个测试用例全部通过（mock 模式）
 
 ---
 
