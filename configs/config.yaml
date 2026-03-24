@@ -1,0 +1,105 @@
+# PSD Smart Cut - 配置文件
+
+version: "0.1"
+project:
+  name: "psd-smart-cut"
+  description: "AI-driven PSD smart cutting workflow system"
+
+# PSD 解析配置
+psd:
+  supported_formats:
+    - ".psd"
+    - ".psb"
+  default_page_index: 0
+  extract_hidden_layers: true
+  extract_locked_layers: true
+
+# AI 识别配置
+ai:
+  provider: "minimax"  # minimax / openai / claude
+  model: "MiniMax-M2.5-highspeed"
+  vision_model: "MiniMax-VLM"
+  confidence_threshold: 0.8
+
+# 导出配置
+export:
+  format_priority:
+    - "png"
+    - "svg"
+  default_quality: 1.0
+  scales:
+    - 1
+    - 2
+    - 3
+  naming:
+    convention: "snake_case"
+    language: "en"
+    include_page: true
+    include_timestamp: false
+
+# 文档配置
+docs:
+  output_format: "markdown"
+  include_json: true
+  include_preview: true
+  detailed_descriptions: true
+
+# 分类阈值
+classification:
+  image_threshold: 0.7
+  text_threshold: 0.8
+  vector_threshold: 0.75
+  decorator_threshold: 0.6
+
+# 切割策略
+cutting:
+  strategy: "smart_canvas"  # smart_canvas / layer_bound / visible_area
+  separate_background: true
+  min_component_size: 10
+  overlap_threshold: 0.1
+
+# 组件识别
+component:
+  min_size: 32
+  max_depth: 5
+  merge_decorators: true
+  detect_interactions: true
+
+# 文字提取
+text:
+  extract_as_text: true
+  extract_as_image: true
+  ocr_enabled: false
+  fonts_whitelist: []
+
+# 输出配置
+output:
+  base_dir: "./output"
+  structure:
+    - "assets/{page_name}"
+    - "specs"
+    - "docs"
+  create_preview: true
+  manifest_format: "json"
+
+# 错误处理
+error:
+  on_missing_layer: "mark"  # mark / skip / raise
+  on_locked_layer: "warn"   # warn / skip / unlock
+  on_classify_fail: "mark"  # mark / skip / fallback
+  on_export_fail: "retry"   # retry / skip / raise
+  max_retries: 3
+
+# 日志配置
+logging:
+  level: "INFO"  # DEBUG / INFO / WARNING / ERROR
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "./logs/psd-smart-cut.log"
+  console: true
+
+# 性能配置
+performance:
+  max_workers: 4
+  batch_size: 10
+  cache_enabled: true
+  cache_dir: "./.cache"
