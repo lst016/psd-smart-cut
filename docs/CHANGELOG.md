@@ -100,14 +100,25 @@ All notable changes to this project will be documented in this file.
 
 ---
 
-## [v0.5] - 导出层
+## [v0.5] - 导出层 ✅
 
-### Planned
-- [ ] asset_exporter
-- [ ] format_converter
-- [ ] naming_manager
-- [ ] metadata_attacher
-- [ ] 导出集成测试
+### Added
+- asset_exporter.py - 资产导出器（PNG/JPG/WebP/SVG 格式）
+- format_converter.py - 格式转换器（格式转换、压缩、优化）
+- naming_manager.py - 命名管理器（模板变量、冲突检测、规范化）
+- metadata_attacher.py - 元数据附加器（EXIF、manifest.json）
+- exporter.py - 统一导出器（协调所有模块、生成报告）
+- __init__.py - 模块导出
+- SKILL.md - 技能文档
+- test_level5.py - 集成测试（40 个测试用例）
+
+### Completed
+- [x] AssetExporter - 资产导出器
+- [x] FormatConverter - 格式转换器
+- [x] NamingManager - 命名管理器
+- [x] MetadataAttacher - 元数据附加器
+- [x] Exporter - 统一导出接口
+- [x] 集成测试 - 40 个测试用例全部通过（mock 模式）
 
 ---
 
