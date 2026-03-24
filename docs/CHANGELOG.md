@@ -30,15 +30,27 @@ All notable changes to this project will be documented in this file.
 
 ---
 
-## [v0.2] - 分类层
+## [v0.2] - 分类层 ✅
 
-### Planned
-- [ ] image_classifier
-- [ ] text_classifier
-- [ ] vector_classifier
-- [ ] group_classifier
-- [ ] decorator_classifier
-- [ ] 分类集成测试
+### Added
+- classifier.py - 5 个分类器 + LayerClassifier
+- image_classifier.py - 图片子类型细分 (button/icon/background/photo/illustration 等)
+- text_classifier.py - 文字类型/语言检测
+- __init__.py - 模块导出
+- SKILL.md - 技能文档
+- test_level2.py - 集成测试（26 个测试用例）
+
+### Completed
+- [x] ImageClassifier - 图片分类器
+- [x] TextClassifier - 文字分类器
+- [x] VectorClassifier - 矢量分类器
+- [x] GroupClassifier - 组分类器
+- [x] DecoratorClassifier - 装饰分类器
+- [x] LayerClassifier - 统一分类接口
+- [x] ImageSubCategory - 图片子类型枚举
+- [x] TextType - 文字类型枚举
+- [x] TextLanguage - 语言检测枚举
+- [x] 集成测试 - 26 个测试用例全部通过
 
 ---
 
