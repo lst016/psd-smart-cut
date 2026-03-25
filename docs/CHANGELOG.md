@@ -189,13 +189,20 @@ All notable changes to this project will be documented in this file.
 
 ---
 
-## [v0.9] - 集成测试
+## [v0.9] - 集成测试 ✅
 
-### Planned
-- [ ] 完整流程测试
-- [ ] 性能测试
-- [ ] 边界情况测试
-- [ ] 文档完善
+### Added
+- `level9-integration/test_integration.py` - 端到端集成测试（40+ 测试用例）
+- `level9-integration/performance_test.py` - 性能基准测试
+- `level9-integration/edge_case_test.py` - 边界情况测试（20+ 测试用例）
+- `level9-integration/SKILL.md` - 技能文档
+- `level9-integration/__init__.py` - 模块初始化
+
+### Completed
+- [x] 端到端集成测试 - Level 1-8 全部模块工作流测试
+- [x] 性能基准测试 - 各模块响应时间、内存使用、批量处理能力
+- [x] 边界情况测试 - 空 PSD、超大图层数量、特殊字符、缺失元数据
+- [x] Mock 模式支持无 PSD 环境测试
 
 ---
 
