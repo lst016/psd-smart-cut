@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.3] - 2026-03-25
+
+### Fixed
+- **level9**: `edge_case_test.py` and `performance_test.py` mock `PSDDocument` now use correct interface fields (`file_path`, `width`, `height`, `total_layers`)
+
 ## [1.0.2] - 2026-03-25
 
 ### Fixed
