@@ -8,4 +8,14 @@ Level 9 - Integration Tests
 - edge_case_test: 边界情况测试
 """
 
+from .test_integration import (
+    create_mock_psd_document,
+    create_mock_recognition_results,
+)
+
 __version__ = "0.9.0"
+
+__all__ = [
+    "create_mock_psd_document",
+    "create_mock_recognition_results",
+]
