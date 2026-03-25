@@ -81,9 +81,34 @@ class PageInfo:
     width: int
     height: int
     layers: List[LayerInfo] = field(default_factory=list)
-    layer_count: int = 0
-    hidden_count: int = 0
-    locked_count: int = 0
+    # 统计字段通过 layers 自动计算，不再存储
+    _layer_count: int = field(default=0, repr=False)
+    _hidden_count: int = field(default=0, repr=False)
+    _locked_count: int = field(default=0, repr=False)
+    
+    @property
+    def layer_count(self) -> int:
+        return self._layer_count if self._layer_count > 0 else len(self.layers)
+    
+    @layer_count.setter
+    def layer_count(self, value: int):
+        self._layer_count = value
+    
+    @property
+    def hidden_count(self) -> int:
+        return self._hidden_count if self._hidden_count > 0 else sum(1 for l in self.layers if l.is_hidden)
+    
+    @hidden_count.setter
+    def hidden_count(self, value: int):
+        self._hidden_count = value
+    
+    @property
+    def locked_count(self) -> int:
+        return self._locked_count if self._locked_count > 0 else sum(1 for l in self.layers if l.locked)
+    
+    @locked_count.setter
+    def locked_count(self, value: int):
+        self._locked_count = value
     
     def to_dict(self) -> Dict:
         return {

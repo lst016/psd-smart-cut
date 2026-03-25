@@ -146,6 +146,10 @@ class FontAnalyzer:
     
     def _parse_font_info(self, text_data: Dict, layer_info: Dict) -> FontInfo:
         """解析字体信息"""
+        # 类型检查：text_data 可能是字符串
+        if not isinstance(text_data, dict):
+            return self._create_mock_font(layer_info)
+        
         # 从 EngineDict 解析
         engine_dict = text_data.get('EngineDict', {})
         style_run = engine_dict.get('StyleRun', {})

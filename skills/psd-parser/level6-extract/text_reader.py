@@ -268,6 +268,10 @@ class TextReader:
         if is_rtl:
             return TextDirection.RTL
         
+        # 类型检查：text_data 可能是字符串
+        if not isinstance(text_data, dict):
+            return TextDirection.LTR
+        
         # 从 PSD 数据中获取方向
         writing_direction = text_data.get('writingDirection', 0)
         if writing_direction == 1:
@@ -279,6 +283,10 @@ class TextReader:
     
     def _get_paragraph_alignment(self, text_data: Dict) -> ParagraphAlignment:
         """获取段落对齐方式"""
+        # 类型检查：text_data 可能是字符串
+        if not isinstance(text_data, dict):
+            return ParagraphAlignment.LEFT
+        
         alignment_map = {
             0: ParagraphAlignment.LEFT,
             1: ParagraphAlignment.LEFT,
