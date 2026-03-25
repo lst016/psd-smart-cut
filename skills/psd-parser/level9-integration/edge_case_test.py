@@ -54,26 +54,26 @@ class TestEmptyPSD:
     def test_empty_psd_document(self):
         """测试空 PSD 文档"""
         doc = PSDDocument(
+            file_path="mock.psd",
             version="2024",
+            width=1920,
+            height=1080,
             pages=[],
-            layer_count=0,
-            has_vectors=False,
-            has_masks=False,
-            color_mode="RGB"
+            total_layers=0
         )
         
         assert doc.page_count == 0
-        assert doc.layer_count == 0
+        assert len(doc.get_all_layers()) == 0
     
     def test_empty_page_extraction(self):
         """测试空页面提取"""
         doc = PSDDocument(
+            file_path="mock.psd",
             version="2024",
+            width=0,
+            height=0,
             pages=[PageInfo(index=0, name="Empty Page", width=0, height=0, layers=[])],
-            layer_count=0,
-            has_vectors=False,
-            has_masks=False,
-            color_mode="RGB"
+            total_layers=0
         )
         
         extractor = PageExtractor()
@@ -85,12 +85,12 @@ class TestEmptyPSD:
     def test_empty_layer_reading(self):
         """测试空图层读取"""
         doc = PSDDocument(
+            file_path="mock.psd",
             version="2024",
+            width=1920,
+            height=1080,
             pages=[PageInfo(index=0, name="Page", width=1920, height=1080, layers=[])],
-            layer_count=0,
-            has_vectors=False,
-            has_masks=False,
-            color_mode="RGB"
+            total_layers=0
         )
         
         reader = LayerReader()
@@ -496,12 +496,12 @@ class TestVisibilityEdgeCases:
         
         reader = LayerReader()
         doc = PSDDocument(
+            file_path="mock.psd",
             version="2024",
+            width=1920,
+            height=1080,
             pages=[PageInfo(index=0, name="All Hidden", width=1920, height=1080, layers=layers)],
-            layer_count=10,
-            has_vectors=False,
-            has_masks=False,
-            color_mode="RGB"
+            total_layers=10
         )
         
         result = reader.read(doc)

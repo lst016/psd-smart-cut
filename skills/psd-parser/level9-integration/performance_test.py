@@ -98,12 +98,12 @@ def create_large_psd_document(layer_count=100):
     ]
     
     return PSDDocument(
+        file_path="mock_large.psd",
         version="2024",
+        width=1920,
+        height=1080 * ((layer_count // 10) + 1),
         pages=pages,
-        layer_count=len(layers),
-        has_vectors=False,
-        has_masks=False,
-        color_mode="RGB"
+        total_layers=len(layers)
     )
 
 
