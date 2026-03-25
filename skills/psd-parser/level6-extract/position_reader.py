@@ -126,7 +126,10 @@ class PositionReader:
                 is_visible=is_visible,
                 is_locked=is_locked,
                 rotation=rotation,
-                bounding_box=bbox
+                bounding_box=bbox,
+                breakpoints=[],
+                anchor=AnchorPoint.TOP_LEFT,
+                alignment=Alignment.LEFT
             )
             
         except Exception as e:
@@ -281,5 +284,8 @@ class PositionReader:
                 'x': x, 'y': y,
                 'width': width, 'height': height,
                 'left': x, 'top': y, 'right': right, 'bottom': bottom
-            }
+            },
+            breakpoints=[],
+            anchor=AnchorPoint.TOP_LEFT,
+            alignment=Alignment.LEFT
         )
