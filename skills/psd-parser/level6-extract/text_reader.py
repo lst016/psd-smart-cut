@@ -165,6 +165,10 @@ class TextReader:
     
     def _extract_text(self, text_data: Dict) -> str:
         """提取文字内容"""
+        # 如果已经是字符串，直接返回
+        if isinstance(text_data, str):
+            return text_data
+
         # 尝试多种可能的键
         for key in ['content', 'text', 'string', 'value']:
             if key in text_data:
