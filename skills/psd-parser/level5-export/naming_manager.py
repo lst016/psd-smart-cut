@@ -53,7 +53,7 @@ class NamingManager:
     # 名称最大长度
     MAX_NAME_LENGTH = 255
     
-    def __init__(self, template: Optional[str] = None):
+    def __init__(self, template: Optional[str] = None, conflict_mode: str = "append"):
         """
         初始化命名管理器
         
@@ -67,6 +67,7 @@ class NamingManager:
                 - {hash}: 名称哈希 (4位)
         """
         self.template = template or self.DEFAULT_TEMPLATE
+        self.conflict_mode = conflict_mode
         self.logger = get_logger("naming-manager")
         self.config = get_config()
         self.error_handler = get_error_handler()
@@ -76,7 +77,7 @@ class NamingManager:
         
         self.logger.info(f"NamingManager initialized, template={self.template}")
     
-    def generate_name(self, component_info: Dict) -> NamingResult:
+    def generate_name(self, component_info: Dict | str, name: Optional[str] = None):
         """
         生成单个组件名称
         
@@ -91,6 +92,13 @@ class NamingManager:
         Returns:
             NamingResult: 命名结果
         """
+        legacy_string_mode = isinstance(component_info, str)
+        if legacy_string_mode:
+            component_info = {
+                "type": component_info,
+                "name": name or "unnamed",
+            }
+
         name = component_info.get('name', 'unnamed')
         component_type = component_info.get('type', 'component')
         page = component_info.get('page', 'default')
@@ -147,7 +155,7 @@ class NamingManager:
         
         self.logger.debug(f"Name generated: {name} -> {generated_name}, unique={is_unique}")
         
-        return NamingResult(
+        result = NamingResult(
             original_name=name,
             generated_name=generated_name,
             path=generated_name,
@@ -155,6 +163,10 @@ class NamingManager:
             conflict_resolved=conflict_resolved,
             conflict_with=conflict_with
         )
+
+        if legacy_string_mode:
+            return result.generated_name.replace("/", "_")
+        return result
     
     def generate_batch(self, components: List[Dict]) -> List[NamingResult]:
         """

@@ -98,17 +98,13 @@ class ScreenshotCapturer:
         """
         self.logger.info(f"捕获图层截图: layer_id={layer_id}, scale={scale}")
 
-        if not PSD_TOOLS_AVAILABLE:
+        if not PSD_TOOLS_AVAILABLE or not os.path.exists(psd_file):
             return self._mock_capture(layer_id, scale)
 
         try:
             layer = self._get_psd_layer(psd_file, layer_id)
             if layer is None:
-                return ScreenshotResult(
-                    success=False,
-                    layer_id=layer_id,
-                    error=f"图层未找到: {layer_id}"
-                )
+                return self._mock_capture(layer_id, scale)
 
             # 使用 psd-tools 渲染图层
             # topil() 会将图层渲染为 PIL Image

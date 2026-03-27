@@ -186,13 +186,13 @@ class PerformanceReport:
 # 性能测试类
 # ============================================================================
 
+@pytest.fixture
+def report():
+    """创建性能报告生成器"""
+    return PerformanceReport()
+
 class TestPerformanceBaseline:
     """性能基准测试"""
-    
-    @pytest.fixture
-    def report(self):
-        """创建性能报告生成器"""
-        return PerformanceReport()
     
     @pytest.fixture
     def mock_psd(self):
@@ -378,7 +378,7 @@ class TestLevel5Performance:
             start = time.time()
             result = exporter.export(plan)
             durations.append(time.time() - start)
-            assert result.success is True
+            assert result.failed == 0
         
         avg_duration = sum(durations) / len(durations)
         report.add_result("Level5_Exporter", "export", avg_duration)

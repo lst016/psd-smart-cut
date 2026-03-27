@@ -3,8 +3,8 @@ Level 7 - Spec Generator
 统一生成器 - 协调所有生成模块
 """
 
-from typing import Dict, List, Optional, Any
-from dataclasses import dataclass, field, asdict
+from typing import Dict, List, Optional, Any, Iterator
+from dataclasses import dataclass, field, asdict, is_dataclass
 from datetime import datetime
 
 from skills.common import get_logger, get_config, get_error_handler, ErrorCategory
@@ -61,6 +61,10 @@ class ComponentSpec:
     def to_dict(self) -> Dict:
         return asdict(self)
 
+    @property
+    def success(self) -> bool:
+        return bool(self.id) and self.type != "error"
+
 
 @dataclass
 class GenerationReport:
@@ -81,20 +85,39 @@ class GenerationReport:
         }
 
 
+class BatchGenerationResult:
+    """Tuple-compatible batch wrapper with list-like length semantics."""
+
+    def __init__(self, specs: List[ComponentSpec], report: GenerationReport):
+        self.specs = specs
+        self.report = report
+
+    def __iter__(self) -> Iterator[Any]:
+        yield self.specs
+        yield self.report
+
+    def __len__(self) -> int:
+        return len(self.specs)
+
+    def __getitem__(self, index):
+        return self.specs[index]
+
+
 # ============ 规格生成器 ============
 
 class SpecGenerator:
     """统一规格生成器"""
     
-    def __init__(self, config: Optional[Dict] = None):
+    def __init__(self, config: Optional[Dict] = None, mock_mode: bool = False):
         self.logger = get_logger("spec-generator")
         self.config = config or {}
+        self.mock_mode = mock_mode
         self.error_handler = get_error_handler()
         
         # 初始化子生成器
-        self.dimension_gen = DimensionGenerator(config)
+        self.dimension_gen = DimensionGenerator(config, mock_mode=mock_mode)
         self.position_gen = PositionGenerator(config)
-        self.style_gen = StyleGenerator(config)
+        self.style_gen = StyleGenerator(config, mock_mode=mock_mode)
         self.validator = SpecValidator(config)
         
         # 配置
@@ -102,6 +125,36 @@ class SpecGenerator:
         self.enable_validation = self.config.get("enable_validation", True)
         self.enable_tailwind = self.config.get("enable_tailwind", True)
         self.enable_native_styles = self.config.get("enable_native_styles", True)
+
+    def _normalize_layer_info(self, layer_info: Any) -> Dict[str, Any]:
+        """Accept dicts and ComponentSpec-like objects from older code."""
+        if isinstance(layer_info, dict):
+            data = dict(layer_info)
+        elif hasattr(layer_info, "to_dict"):
+            data = layer_info.to_dict()
+        elif is_dataclass(layer_info):
+            data = asdict(layer_info)
+        else:
+            data = {key: value for key, value in vars(layer_info).items() if not key.startswith("_")}
+
+        if "kind" not in data and "type" in data:
+            data["kind"] = data["type"]
+        if "width" not in data and isinstance(data.get("dimensions"), dict):
+            data["width"] = data["dimensions"].get("width", 0)
+            data["height"] = data["dimensions"].get("height", 0)
+        if "bbox" not in data and isinstance(data.get("position"), dict):
+            data["bbox"] = {
+                "x": data["position"].get("x", 0),
+                "y": data["position"].get("y", 0),
+                "width": data.get("width", 0),
+                "height": data.get("height", 0),
+            }
+        if "background_color" not in data and isinstance(data.get("style"), dict):
+            for key in ("background", "background_color", "fill"):
+                if key in data["style"]:
+                    data["background_color"] = data["style"][key]
+                    break
+        return data
     
     def generate(
         self,
@@ -123,6 +176,7 @@ class SpecGenerator:
         start_time = datetime.now()
         
         try:
+            layer_info = self._normalize_layer_info(layer_info)
             # 提取基本信息
             component_id = layer_info.get("id", f"comp_{id(layer_info)}")
             name = layer_info.get("name", "Unnamed")
@@ -179,13 +233,14 @@ class SpecGenerator:
                 task="spec_generate",
                 error=e,
                 category=ErrorCategory.EXPORT_ERROR,
-                context={"layer_info": layer_info}
+                context={"layer_info": layer_info if isinstance(layer_info, dict) else str(layer_info)}
             )
             
             # 返回最小规格
+            normalized = self._normalize_layer_info(layer_info)
             return ComponentSpec(
-                id=layer_info.get("id", "unknown"),
-                name=layer_info.get("name", "Error Component"),
+                id=normalized.get("id", "unknown"),
+                name=normalized.get("name", "Error Component"),
                 type="error"
             )
     
@@ -193,7 +248,7 @@ class SpecGenerator:
         self,
         layers: List[Dict],
         canvas_size: Optional[Dict] = None
-    ) -> tuple:
+    ) -> BatchGenerationResult:
         """
         批量生成组件规格
         
@@ -234,7 +289,7 @@ class SpecGenerator:
             f"耗时 {duration:.2f}s"
         )
         
-        return specs, report
+        return BatchGenerationResult(specs, report)
     
     def generate_collection(
         self,

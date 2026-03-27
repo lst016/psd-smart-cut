@@ -30,6 +30,14 @@ class ExportReport:
     assets: List[ExportResult]
     manifest_path: str
     metadata: Dict[str, Any] = field(default_factory=dict)
+
+    @property
+    def total_exported(self) -> int:
+        return self.total
+
+    @property
+    def successful(self) -> int:
+        return self.success
     
     def to_dict(self) -> Dict:
         """转换为字典"""
@@ -88,10 +96,11 @@ class Exporter:
     
     def __init__(
         self,
-        output_dir: str,
+        output_dir: str = "./output/assets",
         naming_template: str = "{type}/{name}",
         export_format: str = "png",
-        export_scale: float = 1.0
+        export_scale: float = 1.0,
+        mock_mode: bool = False
     ):
         """
         初始化导出器
@@ -107,12 +116,13 @@ class Exporter:
         
         self.export_format = export_format
         self.export_scale = export_scale
+        self.mock_mode = mock_mode
         
         # 初始化各个模块
         self.asset_exporter = AssetExporter(str(self.output_dir))
         self.format_converter = FormatConverter(str(self.output_dir))
         self.naming_manager = NamingManager(naming_template)
-        self.metadata_attacher = MetadataAttacher(str(self.output_dir))
+        self.metadata_attacher = MetadataAttacher(str(self._get_metadata_dir()))
         
         # 工具
         self.logger = get_logger("exporter")
@@ -120,6 +130,20 @@ class Exporter:
         self.error_handler = get_error_handler()
         
         self.logger.info(f"Exporter initialized, output_dir={self.output_dir}")
+
+    def _get_export_root(self) -> Path:
+        if self.output_dir.parent.name == "assets":
+            return self.output_dir.parent.parent
+        return self.output_dir
+
+    def _get_metadata_dir(self, export_format: Optional[str] = None) -> Path:
+        return self._get_export_root() / "config" / (export_format or self.export_format)
+
+    def _refresh_output_dirs(self) -> None:
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+        self.asset_exporter.set_output_dir(str(self.output_dir))
+        self.format_converter.output_dir = self.output_dir
+        self.metadata_attacher.output_dir = self._get_metadata_dir()
     
     def export(
         self,
@@ -142,14 +166,11 @@ class Exporter:
         """
         if output_dir:
             self.output_dir = Path(output_dir)
-            self.output_dir.mkdir(parents=True, exist_ok=True)
-            # 更新子模块的输出目录
-            self.asset_exporter.set_output_dir(str(self.output_dir))
-            self.format_converter.output_dir = self.output_dir
-            self.metadata_attacher.output_dir = self.output_dir
+            self._refresh_output_dirs()
         
         if export_format:
             self.export_format = export_format
+            self._refresh_output_dirs()
         
         if naming_template:
             self.naming_manager.set_template(naming_template)
@@ -185,6 +206,13 @@ class Exporter:
                 # 如果导出成功，附加元数据
                 if export_result.success and export_result.exported_path:
                     # 创建元数据
+                    component_custom_fields = dict(component.get('custom_fields', {}))
+                    component_custom_fields.update({
+                        'format': export_result.format,
+                        'file_size': export_result.file_size,
+                        'scale': self.export_scale,
+                        'strategy': plan.strategy
+                    })
                     metadata = self.metadata_attacher.create_metadata(
                         component_info={
                             'name': component_name,
@@ -192,18 +220,17 @@ class Exporter:
                             'dimensions': (export_result.width, export_result.height),
                             'position': component.get('position', (0, 0)),
                             'source_file': component.get('source_file', ''),
-                            'custom_fields': {
-                                'format': export_result.format,
-                                'file_size': export_result.file_size,
-                                'scale': self.export_scale,
-                                'strategy': plan.strategy
-                            }
+                            'custom_fields': component_custom_fields
                         },
                         layer_ids=component.get('layer_ids', [])
                     )
                     
                     # 附加元数据到图片
-                    self.metadata_attacher.attach(export_result.exported_path, metadata)
+                    self.metadata_attacher.attach(
+                        export_result.exported_path,
+                        metadata,
+                        metadata_key=export_result.asset_id,
+                    )
                     asset_metadata_list.append(metadata)
                 
                 assets.append(export_result)
@@ -228,7 +255,7 @@ class Exporter:
         
         # 生成 manifest
         manifest = self.metadata_attacher.generate_manifest(asset_metadata_list)
-        manifest_path = str(self.output_dir / 'manifest.json')
+        manifest_path = str(self.metadata_attacher.output_dir / 'manifest.json')
         
         # 计算统计
         success_count = sum(1 for a in assets if a.success)
@@ -277,9 +304,10 @@ class Exporter:
         """
         if output_dir:
             self.output_dir = Path(output_dir)
-            self.output_dir.mkdir(parents=True, exist_ok=True)
+            self._refresh_output_dirs()
         
         format_to_use = export_format or self.export_format
+        self.metadata_attacher.output_dir = self._get_metadata_dir(format_to_use)
         
         self.logger.info(f"Exporting single component: {component.get('name', 'unknown')}")
         
@@ -301,6 +329,12 @@ class Exporter:
         
         # 附加元数据
         if result.success and result.exported_path:
+            component_custom_fields = dict(component.get('custom_fields', {}))
+            component_custom_fields.update({
+                'format': result.format,
+                'file_size': result.file_size,
+                'scale': self.export_scale
+            })
             metadata = self.metadata_attacher.create_metadata(
                 component_info={
                     'name': naming.generated_name,
@@ -308,15 +342,15 @@ class Exporter:
                     'dimensions': (result.width, result.height),
                     'position': component.get('position', (0, 0)),
                     'source_file': component.get('source_file', ''),
-                    'custom_fields': {
-                        'format': result.format,
-                        'file_size': result.file_size,
-                        'scale': self.export_scale
-                    }
+                    'custom_fields': component_custom_fields
                 },
                 layer_ids=component.get('layer_ids', [])
             )
-            self.metadata_attacher.attach(result.exported_path, metadata)
+            self.metadata_attacher.attach(
+                result.exported_path,
+                metadata,
+                metadata_key=result.asset_id,
+            )
         
         return result
     
@@ -339,9 +373,10 @@ class Exporter:
         """
         if output_dir:
             self.output_dir = Path(output_dir)
-            self.output_dir.mkdir(parents=True, exist_ok=True)
+            self._refresh_output_dirs()
         
         format_to_use = export_format or self.export_format
+        self.metadata_attacher.output_dir = self._get_metadata_dir(format_to_use)
         
         self.logger.info(f"Batch export started, count={len(components)}")
         
@@ -368,19 +403,25 @@ class Exporter:
         # 批量附加元数据
         for component, result in zip(components, results):
             if result.success and result.exported_path:
+                component_custom_fields = dict(component.get('custom_fields', {}))
+                component_custom_fields.update({
+                    'format': result.format,
+                    'file_size': result.file_size
+                })
                 metadata = self.metadata_attacher.create_metadata(
                     component_info={
                         'name': component.get('name', 'unnamed'),
                         'type': component.get('type', 'unknown'),
                         'dimensions': (result.width, result.height),
                         'position': component.get('position', (0, 0)),
-                        'custom_fields': {
-                            'format': result.format,
-                            'file_size': result.file_size
-                        }
+                        'custom_fields': component_custom_fields
                     }
                 )
-                self.metadata_attacher.attach(result.exported_path, metadata)
+                self.metadata_attacher.attach(
+                    result.exported_path,
+                    metadata,
+                    metadata_key=result.asset_id,
+                )
         
         return results
     

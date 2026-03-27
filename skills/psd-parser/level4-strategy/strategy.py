@@ -33,6 +33,11 @@ class CutPlan:
     quality_score: QualityScore
     metadata: Dict
 
+    @property
+    def cut_groups(self) -> List[CutRegion]:
+        """Backward-compatible alias used by older docs/examples."""
+        return self.cut_regions
+
 # ============ 统一策略器 ============
 
 class Strategy:

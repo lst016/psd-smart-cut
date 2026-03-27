@@ -12,7 +12,7 @@ Level 3 - 统一识别器 (Recognizer)
 import sys
 from pathlib import Path
 from typing import Optional, List, Dict, Any, Tuple
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, asdict, is_dataclass
 from datetime import datetime
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
@@ -67,6 +67,14 @@ class RecognitionResult:
         return bool(self.layer_id) and self.component_type != "unknown"
 
 
+class BatchRecognitionResults(list):
+    """List-like batch wrapper with legacy success helpers."""
+
+    @property
+    def success(self) -> bool:
+        return all("error" not in item.metadata for item in self)
+
+
 class Recognizer:
     """
     统一识别器
@@ -80,7 +88,8 @@ class Recognizer:
         output_dir: str = "./output",
         use_screenshot: bool = True,
         use_ai_naming: bool = False,
-        cache_dir: str = "./output/.cache"
+        cache_dir: str = "./output/.cache",
+        mock_mode: bool = False
     ):
         """
         Args:
@@ -93,7 +102,8 @@ class Recognizer:
         self.cache_dir = Path(cache_dir)
         self.cache_dir.mkdir(parents=True, exist_ok=True)
 
-        self.use_screenshot = use_screenshot
+        self.mock_mode = mock_mode
+        self.use_screenshot = use_screenshot and not mock_mode
         self.use_ai_naming = use_ai_naming
 
         self.logger = get_logger("recognizer")
@@ -111,6 +121,53 @@ class Recognizer:
         # 结果缓存
         self._result_cache: Dict[str, RecognitionResult] = {}
         self._cache_enabled = True
+
+    def _normalize_layer_metadata(self, layer_metadata: Any) -> Dict[str, Any]:
+        """Accept dicts and dataclass-style layer metadata from older tests."""
+        if isinstance(layer_metadata, dict):
+            data = dict(layer_metadata)
+        elif hasattr(layer_metadata, "to_dict"):
+            data = layer_metadata.to_dict()
+        elif is_dataclass(layer_metadata):
+            data = asdict(layer_metadata)
+        else:
+            data = {
+                key: value for key, value in vars(layer_metadata).items()
+                if not key.startswith("_")
+            }
+
+        if "layer_id" not in data and "id" in data:
+            data["layer_id"] = data["id"]
+        if "type" not in data and "kind" in data:
+            data["type"] = data["kind"]
+        if "position" not in data and "left" in data and "top" in data:
+            data["position"] = {"x": data.get("left", 0), "y": data.get("top", 0)}
+        if "dimensions" not in data and "width" in data and "height" in data:
+            data["dimensions"] = {"width": data.get("width", 0), "height": data.get("height", 0)}
+        if "bbox" not in data and "position" in data and "dimensions" in data:
+            data["bbox"] = {
+                "x": data["position"].get("x", 0),
+                "y": data["position"].get("y", 0),
+                "width": data["dimensions"].get("width", 0),
+                "height": data["dimensions"].get("height", 0),
+            }
+
+        return data
+
+    def recognize_batch(
+        self,
+        layers_metadata: List[Dict[str, Any]],
+        psd_file: str = "mock.psd",
+        capture_screenshots: bool = False,
+        parallel: bool = False
+    ) -> BatchRecognitionResults:
+        """Backward-compatible alias for older integration code."""
+        return self.batch_recognize(
+            psd_file=psd_file,
+            layers_metadata=layers_metadata,
+            capture_screenshots=capture_screenshots,
+            parallel=parallel,
+        )
 
     def _get_cache_key(self, layer_id: str, psd_file: str) -> str:
         """生成缓存键"""
@@ -133,6 +190,7 @@ class Recognizer:
         Returns:
             RecognitionResult
         """
+        layer_metadata = self._normalize_layer_metadata(layer_metadata)
         layer_id = layer_metadata.get("layer_id", "unknown")
 
         # 检查缓存
@@ -245,7 +303,7 @@ class Recognizer:
         layers_metadata: List[Dict[str, Any]],
         capture_screenshots: bool = True,
         parallel: bool = False
-    ) -> List[RecognitionResult]:
+    ) -> BatchRecognitionResults:
         """
         批量识别图层
 
@@ -260,7 +318,7 @@ class Recognizer:
         """
         self.logger.info(f"批量识别 {len(layers_metadata)} 个图层")
 
-        results = []
+        results: BatchRecognitionResults = BatchRecognitionResults()
         for i, layer_metadata in enumerate(layers_metadata):
             self.logger.debug(f"进度: {i + 1}/{len(layers_metadata)}")
 

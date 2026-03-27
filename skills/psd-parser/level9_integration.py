@@ -13,7 +13,7 @@ def _get_package():
         _package = importlib.import_module('skills.psd-parser.level9-integration')
     return _package
 
-_SUBMODULES = frozenset(['test_integration', 'performance_test', 'edge_case_test'])
+_SUBMODULES = frozenset(['pipeline', 'test_integration', 'performance_test', 'edge_case_test'])
 
 def __getattr__(name):
     pkg = _get_package()

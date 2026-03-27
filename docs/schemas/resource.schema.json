@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://psd-smart-cut.local/schemas/resource.schema.json",
+  "title": "ResourceModel",
+  "description": "Unique physical asset contract for V2. Resources represent reusable rendered files, independent from component instances.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "resource_id",
+    "resource_key",
+    "resource_type",
+    "format",
+    "path",
+    "dimensions",
+    "hash"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "2.0"
+    },
+    "resource_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "resource_key": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9_-]*$"
+    },
+    "resource_type": {
+      "type": "string",
+      "minLength": 1
+    },
+    "display_name": {
+      "type": "string"
+    },
+    "format": {
+      "type": "string",
+      "enum": ["png", "jpg", "jpeg", "webp", "svg"]
+    },
+    "path": {
+      "type": "string",
+      "minLength": 1
+    },
+    "dimensions": {
+      "$ref": "#/$defs/dimensions"
+    },
+    "hash": {
+      "type": "string",
+      "minLength": 1
+    },
+    "usage_count": {
+      "type": "integer",
+      "minimum": 0,
+      "default": 0
+    },
+    "source_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/sourceRef"
+      },
+      "default": []
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": []
+    }
+  },
+  "$defs": {
+    "dimensions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["width", "height"],
+      "properties": {
+        "width": { "type": "integer", "minimum": 0 },
+        "height": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "sourceRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "id"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": ["psd_layer", "psd_group", "render_plan", "derived"]
+        },
+        "id": { "type": "string", "minLength": 1 },
+        "path": { "type": "string" }
+      }
+    }
+  }
+}

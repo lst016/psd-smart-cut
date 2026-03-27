@@ -82,9 +82,10 @@ class ColorConverter:
 class StyleGenerator:
     """样式生成器"""
     
-    def __init__(self, config: Optional[Dict] = None):
+    def __init__(self, config: Optional[Dict] = None, mock_mode: bool = False):
         self.logger = get_logger("style-generator")
         self.config = config or {}
+        self.mock_mode = mock_mode
         self.error_handler = get_error_handler()
         
         # Tailwind 映射表
@@ -93,7 +94,7 @@ class StyleGenerator:
         # 主题变量前缀
         self.theme_prefix = self.config.get("theme_prefix", "--theme")
     
-    def generate(self, style_info: Dict) -> StyleSpec:
+    def generate(self, style_info: Optional[Dict] = None, **kwargs) -> StyleSpec:
         """
         生成单个样式规格
         
@@ -104,6 +105,16 @@ class StyleGenerator:
             StyleSpec: 样式规格对象
         """
         try:
+            if style_info is None:
+                style_info = {}
+            else:
+                style_info = dict(style_info)
+
+            if "color" in kwargs:
+                style_info.setdefault("colors", {})["primary"] = kwargs["color"]
+            if kwargs:
+                style_info.update({k: v for k, v in kwargs.items() if k not in {"color", "platform"}})
+
             css = {}
             tailwind = []
             ios = {}

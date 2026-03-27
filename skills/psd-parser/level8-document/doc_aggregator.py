@@ -190,12 +190,12 @@ class DocAggregator:
         
         # 必需文档
         for doc in required:
-            status = "✅" if doc.exists else "❌"
+            status = "OK" if doc.exists else "MISSING"
             lines.append(f"├── {status} {doc.name}")
-        
+
         # 可选文档
         for doc in optional:
-            status = "✅" if doc.exists else "○"
+            status = "OK" if doc.exists else "OPTIONAL"
             lines.append(f"├── {status} {doc.name}")
         
         return "\n".join(lines)

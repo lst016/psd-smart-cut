@@ -77,11 +77,20 @@ class MetadataAttacher:
         self.error_handler = get_error_handler()
         
         self.logger.info(f"MetadataAttacher initialized, output_dir={self.output_dir}")
+
+    def _metadata_path_for(self, image_path: Path, metadata_key: Optional[str] = None) -> Path:
+        if self.output_dir:
+            self.output_dir.mkdir(parents=True, exist_ok=True)
+            safe_key = metadata_key or image_path.name
+            safe_key = safe_key.replace("/", "__").replace("\\", "__")
+            return self.output_dir / f"{safe_key}.meta.json"
+        return image_path.with_suffix(image_path.suffix + '.meta.json')
     
     def attach(
         self,
         image_path: str,
-        metadata: AssetMetadata
+        metadata: AssetMetadata,
+        metadata_key: Optional[str] = None,
     ) -> bool:
         """
         附加元数据到图片
@@ -115,7 +124,7 @@ class MetadataAttacher:
             # 生成元数据文件（sidecar JSON）
             # 注意：PNG/JPG 的 EXIF 写入需要专门的库（如 piexif, Pillow）
             # 这里使用 sidecar 方式存储元数据
-            metadata_path = image_path.with_suffix(image_path.suffix + '.meta.json')
+            metadata_path = self._metadata_path_for(image_path, metadata_key=metadata_key)
             
             with open(metadata_path, 'w', encoding='utf-8') as f:
                 json.dump(metadata.to_dict(), f, indent=2, ensure_ascii=False)
@@ -150,7 +159,7 @@ class MetadataAttacher:
         image_path = Path(image_path)
         
         # 首先尝试读取 sidecar JSON
-        metadata_path = image_path.with_suffix(image_path.suffix + '.meta.json')
+        metadata_path = self._metadata_path_for(image_path)
         
         if metadata_path.exists():
             try:
@@ -161,6 +170,17 @@ class MetadataAttacher:
                 return AssetMetadata.from_dict(data)
             except Exception as e:
                 self.logger.warning(f"读取 sidecar 元数据失败: {e}")
+
+        legacy_metadata_path = image_path.with_suffix(image_path.suffix + '.meta.json')
+        if legacy_metadata_path.exists():
+            try:
+                with open(legacy_metadata_path, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+
+                self.logger.info(f"Metadata extracted from legacy sidecar: {legacy_metadata_path}")
+                return AssetMetadata.from_dict(data)
+            except Exception as e:
+                self.logger.warning(f"读取 legacy sidecar 元数据失败: {e}")
         
         # TODO: 实现 EXIF/XMP 读取（需要 piexif 等库）
         self.logger.info(f"No embedded metadata found in {image_path}")

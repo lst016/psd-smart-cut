@@ -29,6 +29,10 @@ class ExtractionResult:
     style: Optional[LayerStyle]
     position: Optional[PositionData]
     metadata: Dict[str, Any] = field(default_factory=dict)
+
+    @property
+    def success(self) -> bool:
+        return "error" not in self.metadata
     
     def to_dict(self) -> Dict:
         """转换为字典"""
@@ -128,9 +132,10 @@ class ExtractionResult:
 class Extractor:
     """统一提取器 - 协调所有提取模块"""
     
-    def __init__(self, canvas_width: int = 1440, canvas_height: int = 900):
+    def __init__(self, canvas_width: int = 1440, canvas_height: int = 900, mock_mode: bool = False):
         self.logger = get_logger("Extractor")
         self.error_handler = get_error_handler()
+        self.mock_mode = mock_mode
         self.text_reader = TextReader()
         self.font_analyzer = FontAnalyzer()
         self.style_extractor = StyleExtractor()
@@ -140,7 +145,7 @@ class Extractor:
         """提取单个图层的完整信息"""
         layer_id = layer_info.get('id', 'unknown')
         layer_name = layer_info.get('name', 'Unknown')
-        layer_type = layer_info.get('type', 'unknown')
+        layer_type = layer_info.get('type') or layer_info.get('kind', 'unknown')
         
         self.logger.info(f"提取图层: {layer_id} - {layer_name}")
         

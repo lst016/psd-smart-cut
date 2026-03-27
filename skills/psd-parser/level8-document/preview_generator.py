@@ -315,7 +315,7 @@ class PreviewGenerator:
         total = len(components)
         return f"""
         <header>
-            <h1>🎨 PSD Smart Cut</h1>
+            <h1>PSD Smart Cut</h1>
             <p>组件预览报告 - 共 {total} 个组件</p>
         </header>
     """
@@ -329,7 +329,7 @@ class PreviewGenerator:
         
         return f"""
         <div class="section">
-            <h2>📋 组件列表</h2>
+            <h2>组件列表</h2>
             <div class="component-grid">
                 {chr(10).join(cards)}
             </div>
@@ -379,11 +379,11 @@ class PreviewGenerator:
                 return f'<div class="thumbnail"><img src="{thumbnail}" alt="{name}"></div>'
             else:
                 return f'''<div class="thumbnail">
-                    <span class="thumbnail-placeholder">📦 {name}</span>
+                    <span class="thumbnail-placeholder">[asset] {name}</span>
                 </div>'''
         else:
             return f'''<div class="thumbnail">
-                <span class="thumbnail-placeholder">📦 {name}</span>
+                <span class="thumbnail-placeholder">[asset] {name}</span>
             </div>'''
     
     def _generate_relationship_diagram(self, components: List[Dict]) -> str:
@@ -396,11 +396,9 @@ class PreviewGenerator:
         
         return f"""
         <div class="section">
-            <h2>🔗 组件关系图</h2>
+            <h2>组件关系图</h2>
             <div class="diagram-container">
-                <svg viewBox="0 0 1200 500" xmlns="http://www.w3.org/2000/svg">
-                    {svg_content}
-                </svg>
+                {svg_content}
             </div>
             <div class="legend">
                 {legend}
@@ -459,7 +457,8 @@ class PreviewGenerator:
                           x2="{child_x}" y2="{child_y}" 
                           stroke="#999" stroke-width="1" stroke-dasharray="4,4"/>''')
         
-        return "\n".join(svg_parts)
+        svg_body = "\n".join(svg_parts)
+        return f'<svg viewBox="0 0 1200 500" xmlns="http://www.w3.org/2000/svg">{svg_body}</svg>'
     
     def _generate_legend(self) -> str:
         """生成图例"""
@@ -498,7 +497,7 @@ class PreviewGenerator:
         
         return f"""
         <div class="section">
-            <h2>📊 统计信息</h2>
+            <h2>统计信息</h2>
             <div class="stats-grid">
                 <div class="stat-card">
                     <h3>{total}</h3>

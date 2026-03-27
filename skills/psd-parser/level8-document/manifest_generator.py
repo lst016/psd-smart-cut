@@ -88,7 +88,7 @@ class ManifestGenerator:
             JSON 格式的清单字符串
         """
         if components is None:
-            components = self._generate_mock_components()
+            components = [] if self.mock_mode else self._generate_mock_components()
         
         # 创建清单条目
         entries = []

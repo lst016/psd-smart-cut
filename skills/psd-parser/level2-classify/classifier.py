@@ -7,7 +7,7 @@ import os
 import json
 from pathlib import Path
 from typing import Dict, List, Optional, Any
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, asdict, is_dataclass
 from enum import Enum
 
 from skills.common import get_logger, get_config, get_error_handler, ErrorCategory
@@ -290,15 +290,45 @@ class LayerClassifier:
     职责：协调所有分类器进行分类
     """
     
-    def __init__(self):
+    def __init__(self, mock_mode: bool = False):
         self.logger = get_logger("layer-classifier")
+        self.mock_mode = mock_mode
         self.image_classifier = ImageClassifier()
         self.text_classifier = TextClassifier()
         self.vector_classifier = VectorClassifier()
         self.group_classifier = GroupClassifier()
         self.decorator_classifier = DecoratorClassifier()
+
+    def _normalize_layer_info(self, layer_info: Any) -> Dict[str, Any]:
+        """Accept dicts and dataclass-style layer objects from older tests."""
+        if isinstance(layer_info, dict):
+            data = dict(layer_info)
+        elif hasattr(layer_info, "to_dict"):
+            data = layer_info.to_dict()
+        elif is_dataclass(layer_info):
+            data = asdict(layer_info)
+        else:
+            data = {
+                key: value for key, value in vars(layer_info).items()
+                if not key.startswith("_")
+            }
+
+        if "layer_id" not in data and "id" in data:
+            data["layer_id"] = data["id"]
+        if "type" not in data and "kind" in data:
+            data["type"] = data["kind"]
+        if "bbox" not in data and all(key in data for key in ("left", "top", "width", "height")):
+            data["bbox"] = {
+                "x": data.get("left", 0),
+                "y": data.get("top", 0),
+                "width": data.get("width", 0),
+                "height": data.get("height", 0),
+            }
+
+        return data
     
     def classify(self, layer_info: Dict, screenshot_path: Optional[str] = None) -> ClassificationResult:
+        layer_info = self._normalize_layer_info(layer_info)
         """分类单个 Layer"""
         kind = layer_info.get('kind', 'unknown')
         
@@ -360,15 +390,19 @@ class LayerClassifier:
                 metadata=layer_info
             )
     
-    def classify_batch(self, layers: List[Dict], screenshot_dir: str) -> BatchClassificationResult:
+    def classify_batch(self, layers: List[Dict], screenshot_dir: str = "") -> BatchClassificationResult:
         """批量分类"""
         results = []
         failed = 0
         
         for layer in layers:
+            normalized_layer = self._normalize_layer_info(layer)
             try:
-                screenshot_path = os.path.join(screenshot_dir, f"{layer['id']}.png")
-                result = self.classify(layer, screenshot_path if os.path.exists(screenshot_path) else None)
+                screenshot_path = os.path.join(screenshot_dir, f"{normalized_layer['id']}.png")
+                result = self.classify(
+                    normalized_layer,
+                    screenshot_path if os.path.exists(screenshot_path) else None
+                )
                 results.append({
                     "layer_id": result.layer_id,
                     "type": result.type,

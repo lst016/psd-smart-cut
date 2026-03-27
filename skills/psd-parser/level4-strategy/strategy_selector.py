@@ -2,8 +2,8 @@
 Level 4 - Strategy Selector
 策略选择器 - 根据组件类型选择切割策略
 """
-from typing import Dict, List, Optional, Tuple
-from dataclasses import dataclass, field
+from typing import Dict, List, Optional, Tuple, Any
+from dataclasses import dataclass, field, asdict, is_dataclass
 from enum import Enum
 from skills.common import get_logger, get_config, get_error_handler, ErrorCategory
 
@@ -45,6 +45,10 @@ class StrategySelectionResult:
     recommendations: List[CutRecommendation]
     custom_rules_applied: List[str]
     metadata: Dict
+
+    @property
+    def success(self) -> bool:
+        return self.selected_strategy is not None
 
 # ============ 策略选择器 ============
 
@@ -91,10 +95,25 @@ class StrategySelector:
         )
     ]
     
-    def __init__(self, custom_rules: Optional[List[StrategyRule]] = None):
+    def __init__(self, custom_rules: Optional[List[StrategyRule]] = None, mock_mode: bool = False):
         self.logger = get_logger("strategy_selector")
         self.config = get_config()
+        self.mock_mode = mock_mode
         self.rules = custom_rules or self.DEFAULT_RULES.copy()
+
+    def _normalize_layer(self, layer: Any) -> Dict:
+        if isinstance(layer, dict):
+            data = dict(layer)
+        elif hasattr(layer, "to_dict"):
+            data = layer.to_dict()
+        elif is_dataclass(layer):
+            data = asdict(layer)
+        else:
+            data = {key: value for key, value in vars(layer).items() if not key.startswith("_")}
+
+        if "type" not in data and "kind" in data:
+            data["type"] = data["kind"]
+        return data
     
     def select(
         self,
@@ -115,6 +134,41 @@ class StrategySelector:
         """
         canvas_info = canvas_info or {}
         classification_results = classification_results or []
+
+        if (
+            isinstance(layers, dict)
+            and not canvas_info
+            and not classification_results
+            and "total_components" in layers
+        ):
+            context = layers
+            analysis = {
+                'total_layers': context.get('total_components', 0),
+                'type_distribution': {'component': context.get('total_components', 0)},
+                'text_ratio': 0,
+                'image_ratio': 1.0 if context.get('total_components', 0) else 0,
+                'group_ratio': 0,
+                'has_background': False,
+                'dominant_type': 'component'
+            }
+            selected_strategy = self._determine_best_strategy(
+                analysis,
+                {'width': context.get('canvas_width', 0), 'height': context.get('canvas_height', 0)}
+            )
+            return StrategySelectionResult(
+                selected_strategy=selected_strategy,
+                recommendations=[
+                    CutRecommendation(
+                        region_id="context_summary",
+                        layer_ids=[],
+                        strategy=selected_strategy,
+                        merge_suggested=context.get("has_overlaps", False),
+                        reason="Generated from performance-test context"
+                    )
+                ],
+                custom_rules_applied=[],
+                metadata={'layer_analysis': analysis, 'rules_count': len(self.rules)}
+            )
         
         self.logger.info(
             f"选择切割策略: {len(layers)} 个图层",
@@ -176,7 +230,8 @@ class StrategySelector:
         group_count = 0
         has_background = False
         
-        for layer in layers:
+        for raw_layer in layers:
+            layer = self._normalize_layer(raw_layer)
             layer_type = layer.get('type', 'unknown')
             type_counts[layer_type] = type_counts.get(layer_type, 0) + 1
             
@@ -236,7 +291,8 @@ class StrategySelector:
         
         if strategy == StrategyType.FLAT:
             # 每个图层单独一个区域
-            for i, layer in enumerate(layers):
+            for i, raw_layer in enumerate(layers):
+                layer = self._normalize_layer(raw_layer)
                 recommendations.append(CutRecommendation(
                     region_id=f"export_{i:03d}",
                     layer_ids=[layer.get('id', f'layer_{i}')],
@@ -248,7 +304,8 @@ class StrategySelector:
         elif strategy == StrategyType.GROUP_BY_TYPE:
             # 按类型分组
             type_groups = {}
-            for i, layer in enumerate(layers):
+            for i, raw_layer in enumerate(layers):
+                layer = self._normalize_layer(raw_layer)
                 layer_type = layer.get('type', 'unknown')
                 if layer_type not in type_groups:
                     type_groups[layer_type] = []

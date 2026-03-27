@@ -1,309 +1,309 @@
-# PSD Smart Cut
+﻿# PSD Smart Cut
 
-> AI-powered PSD component extraction and smart cutting workflow system.
+> 一个面向 `Cursor`、`Claude`、`Codex` 等 AI 的多 agent 美术资源规划工具台。
 
-**Status: v0.9 - 集成测试完成** | [中文文档](./docs/USER_GUIDE.md) | [使用指南](./docs/usage.md)
+`PSD Smart Cut` 的目标不是“把 PSD 图层一层层切出来”，而是先让 AI 看懂页面、拆清模块、规划组件与共享资源，然后再调用确定性的导出工具生成前端和美术都能消费的交付物。
 
----
+## 当前定位
 
-## ✨ 功能特性
+这个仓库现在明确定位为：
 
-### 🏗️ 9 层架构 pipeline
+- 一个 `AI orchestrator` 驱动的工作台
+- 一个给多角色 agent 协作使用的工具项目
+- 一个把“页面理解 -> 组件规划 -> 资源规划 -> 资源任务单 -> 并发切图 -> 复核交付”固化下来的工作流仓库
 
-| Level | 模块 | 功能 | 状态 |
-|-------|------|------|------|
-| **L1** | PSD 解析层 | Page 提取、Layer 读取、层级树构建、隐藏/锁定图层检测 | ✅ 完成 |
-| **L2** | 分类层 | 图片/文字/矢量/组/装饰 五大分类器 + 子类型细分 | ✅ 完成 |
-| **L3** | 识别层 | 截图捕获、区域检测、组件命名、边界分析、功能分析 | ✅ 完成 |
-| **L4** | 策略层 | 画布分析、切割策略选择、重叠检测、质量评估 | ✅ 完成 |
-| **L5** | 导出层 | 资产导出、格式转换、命名管理、元数据附加 | ✅ 完成 |
-| **L6** | 提取层 | 文字读取、字体分析、样式提取、位置读取 | ✅ 完成 |
-| **L7** | 生成层 | 尺寸/位置/样式生成器，CSS/Tailwind/iOS/Android 多平台输出 | ✅ 完成 |
-| **L8** | 文档层 | README/CHANGELOG/Manifest/HTML 预览 自动生成 | ✅ 完成 |
-| **L9** | 集成测试 | 端到端测试、性能测试、边界情况测试 | ✅ 完成 |
+当前确认下来的 5 条原则：
 
-### 🤖 AI 能力
+1. 主入口是 `AI orchestrator`
+2. 页面理解必须 `截图优先`
+3. PSD 结构只做辅助证据
+4. 资源策略默认 `复用优先`
+5. 旧 `heuristic pipeline` 只保留为兼容层
 
-- **智能分类**：基于启发式规则 + AI 模型自动识别图层类型
-- **组件识别**：支持按钮、图标、横幅、相册等 12+ 组件类型识别
-- **语义命名**：AI 驱动的语义化组件命名
-- **多平台规格**：自动生成 CSS/Tailwind/iOS/Android 代码
+## 这项目是什么
 
-### 📦 导出格式
+- 一个 AI 原生的资源规划工具台
+- 一个服务于前端、美术、产品和审阅角色协作的工作流仓库
+- 一个把页面、组件、资源和分析文档分层输出的交付系统
 
-| 格式 | 支持 | 说明 |
-|------|------|------|
-| PNG | ✅ | 无损压缩，支持透明 |
-| JPG | ✅ | 有损压缩，可调质量 |
-| WebP | ✅ | 现代格式，压缩率高 |
-| SVG | ✅ | 矢量导出（部分） |
+## 这项目不是什么
 
-### 🔧 切割策略
+- 不是一个只会按图层导出的固定切图脚本
+- 不是一个“读结构后有什么切什么”的傻流程
+- 不是一个只能靠单条 pipeline 跑到底的工具
 
-| 策略 | 说明 |
-|------|------|
-| `FLAT` | 扁平化导出所有图层 |
-| `GROUP_BY_TYPE` | 按类型分组（image/text/vector） |
-| `GROUP_BY_PAGE` | 按页面分组 |
-| `PRESERVE_HIERARCHY` | 保持 PSD 层级结构 |
-| `SMART_MERGE` | 智能合并重叠区域 |
+## 仓库结构
 
----
-
-## 📁 项目结构
-
-```
+```text
 psd-smart-cut/
-├── skills/
-│   └── psd-parser/
-│       ├── level1-parse/          # PSD 解析层
-│       ├── level2_classify/       # 分类层
-│       ├── level3_recognize/      # 识别层
-│       ├── level4_strategy/        # 策略层
-│       ├── level5_export/          # 导出层
-│       ├── level6_extractor/       # 提取层
-│       ├── level7_generator/       # 生成层
-│       ├── level8_documentation/   # 文档层
-│       └── level9_integration/    # 集成测试
-├── configs/
-│   └── config.yaml                # 配置文件
-├── docs/                          # 文档
-│   ├── USER_GUIDE.md             # 用户指南
-│   ├── usage.md                  # 使用文档
-│   ├── CHANGELOG.md              # 变更日志
-│   └── VERSION-PLAN.md           # 版本计划
-├── examples/                      # 示例
-│   ├── basic_parse.py            # 基础解析
-│   ├── classify_example.py        # 分类示例
-│   ├── recognize_example.py       # 识别示例
-│   ├── strategy_example.py        # 策略示例
-│   ├── export_example.py          # 导出示例
-│   └── full_workflow.py          # 完整工作流
-├── requirements.txt
-└── README.md
+|-- skills/
+|   |-- cli.py
+|   |-- psd-parser/
+|   |   |-- level1-parse/
+|   |   |-- level2-classify/
+|   |   |-- level3_recognize/
+|   |   |-- level4-strategy/
+|   |   |-- level5-export/
+|   |   |-- level6-extract/
+|   |   |-- level7-generate/
+|   |   |-- level8-document/
+|   |   `-- level9-integration/
+|   `-- psd_parser/
+|-- docs/
+|-- examples/
+|-- input/
+|-- output/
+|-- requirements.txt
+`-- README.md
 ```
 
----
+## 安装
 
-## 🚀 快速开始
+环境要求：
 
-### 安装
+- Python 3.10+
+- `psd-tools`
+- `Pillow`
+
+安装依赖：
 
 ```bash
-# 克隆项目
-git clone https://github.com/lst016/psd-smart-cut.git
-cd psd-smart-cut
-
-# 安装依赖
 pip install -r requirements.txt
-
-# 可选：AI 功能依赖
-pip install minimax-api openai
 ```
 
-### Python API
+可选 AI 依赖：
 
-#### 1. 基础解析
+```bash
+pip install openai minimax-api
+```
+
+## 核心工作流
+
+当前确认下来的 V2 工作流是：
+
+```text
+整页截图 / 预览
+-> 页面理解
+-> 模块树 / 区域树
+-> 组件分析
+-> 策略层决策
+-> 多 agent 组件规划
+-> 资源规划
+-> 资源任务单
+-> 并发切图
+-> 复核
+-> 交付包
+```
+
+更具体地说，执行顺序应是：
+
+1. 先生成整页预览
+2. 由 AI 判断页面用途和业务模块
+3. 先产出中性的 `component-analysis`
+4. 再由不同端侧策略生成 `strategy-decision.<profile>`
+5. 再由 `product / frontend / art / game` 等 agent 收敛组件和资源策略
+6. 先产出 `resource-task-list.<profile>`
+6. 再按 worker 并发执行真实导出
+7. 最后用 `review checklist` 复核
+
+## 试运行后的推进方式
+
+每次真实 PSD 试运行结束后，不允许直接跳到下一份 PSD。
+
+必须按这条后续链路推进：
+
+```text
+试运行包
+-> 复盘
+-> 问题分类
+-> 策略收敛
+-> 白名单精修
+-> 回归验证
+-> 生产准入判断
+-> 决定继续当前 PSD / 切下一份 PSD
+```
+
+这条链路的目标是避免“每轮都重新试错”，并把试运行结果真正沉淀成下一轮的默认策略。
+
+## 目标输出层
+
+V2 的目标输出协议是：
+
+- `pages/`
+- `components/`
+- `resources/`
+- `analysis/`
+
+含义如下：
+
+- `pages/`：页面与模块实例，是主入口
+- `components/`：可复用组件定义
+- `resources/`：唯一物理资源
+- `analysis/`：给人审阅和对齐的文档层
+
+V2 现在建议按三层来组织：
+
+- `analysis/`：只放中性事实分析，不带端侧偏好
+- `strategies/`：放具体策略 profile 的决策结果
+- `plans/`：放策略层落地后的执行任务单
+
+其中建议至少包含：
+
+- `analysis/page-analysis`
+- `analysis/component-analysis`
+- `strategies/strategy-decision.<profile>`
+- `plans/resource-task-list.<profile>`
+
+注意：
+
+- `css 优先`、`image 优先` 这类判断属于策略层，不属于通用分析层
+- 同一份 `component-analysis` 可以同时服务 `frontend_web`、`game_client` 等不同 profile
+
+## 核心文档
+
+- [Docs Index](./docs/README.md)
+- [Usage Guide](./docs/guides/usage.md)
+- [Agent Architecture](./docs/architecture/AGENT-ARCHITECTURE.md)
+- [V2 Foundation](./docs/planning/V2-FOUNDATION.md)
+- [Frontend Analysis Spec](./docs/protocols/FRONTEND-ANALYSIS-SPEC.md)
+- [Strategy Layer Spec](./docs/protocols/STRATEGY-LAYER-SPEC.md)
+- [V2 Implementation Plan](./docs/planning/V2-IMPLEMENTATION-PLAN.md)
+- [Orchestrator Lifecycle](./docs/architecture/ORCHESTRATOR-LIFECYCLE.md)
+- [Post Iteration Workflow](./docs/process/POST-ITERATION-WORKFLOW.md)
+- [V2 Job Spec](./docs/protocols/JOB-SPEC.md)
+- [V2 Agent Handoff](./docs/protocols/AGENT-HANDOFF.md)
+- [V2 Review Package](./docs/protocols/REVIEW-PACKAGE.md)
+- [V2 Schemas](./docs/schemas/README.md)
+- [Subagent Rules](./docs/architecture/SUBAGENT-RULES.md)
+- [Alignment Checklist](./docs/architecture/ALIGNMENT-CHECKLIST.md)
+
+补充文档：
+
+- [Page Understanding Review](./docs/reviews/page-understanding-review.md)
+- [Component Export Review](./docs/reviews/component-export-review.md)
+- [Delivery Protocol Review](./docs/reviews/delivery-protocol-review.md)
+
+样例与实验：
+
+- [frontend-component-planner skill sample](./docs/examples/agent-skills/frontend-component-planner.SKILL.md)
+- [lobby export experiment](./examples/experiments/v2_export_lobby_resources.py)
+
+## 低层工具入口
+
+这些 API 仍然重要，因为它们是 orchestrator 和各类 agent 最终会调用的确定性工具。
+
+### Level 1 解析
 
 ```python
-from skills.psd_parser.level1_parse import parse_psd, extract_pages, read_layers
+from skills.psd_parser.level1_parse import (
+    LayerFilter,
+    extract_pages,
+    parse_psd,
+    read_layers,
+)
 
-# 解析 PSD 文件
 document = parse_psd("design.psd")
+print(document.width, document.height)
+print(document.page_count, document.total_layers)
 
-# 提取所有页面
 pages = extract_pages("design.psd")
-print(f"发现 {len(pages)} 个页面")
+print(pages.page_count)
 
-# 读取第一页的所有图层
-layers = read_layers("design.psd", page_index=0)
-for layer in layers:
-    print(f"图层: {layer.name}, 类型: {layer.kind}")
+visible_layers = read_layers(
+    "design.psd",
+    page_index=0,
+    filter_type=LayerFilter.VISIBLE,
+)
+print(visible_layers.layer_count)
 ```
 
-#### 2. 图层分类
-
-```python
-from skills.psd_parser.level2_classify import LayerClassifier
-
-classifier = LayerClassifier()
-classified = classifier.classify(layers)
-
-for layer_type, type_layers in classified.items():
-    print(f"{layer_type}: {len(type_layers)} 个图层")
-```
-
-#### 3. 组件识别
-
-```python
-from skills.psd_parser.level3_recognize import Recognizer
-
-recognizer = Recognizer()
-components = recognizer.recognize(layers, screenshots_dir="screenshots/")
-
-for comp in components:
-    print(f"{comp.name} - {comp.component_type} @ {comp.bounds}")
-```
-
-#### 4. 切割策略
-
-```python
-from skills.psd_parser.level4_strategy import Strategy
-
-strategy = Strategy()
-plan = strategy.generate(components)
-
-print(f"切割计划: {plan.strategy_type}")
-print(f"导出 {len(plan.cut_groups)} 个分组")
-```
-
-#### 5. 资产导出
-
-```python
-from skills.psd_parser.level5_export import Exporter
-
-exporter = Exporter()
-report = exporter.export(components, plan, "output/")
-
-print(f"已导出 {report.total_exported} 个资源")
-print(f"manifest: {report.manifest_path}")
-```
-
-#### 6. 完整工作流
+### 当前兼容层 pipeline
 
 ```python
 from skills.psd_parser.level9_integration import run_full_pipeline
 
-# 一行命令执行完整流程
 result = run_full_pipeline(
     psd_path="design.psd",
     output_dir="./output",
     strategy="SMART_MERGE",
-    formats=["png", "webp"]
+    formats=["png", "webp"],
 )
+
+print(result.total_layers)
+print(result.manifest_paths)
+print(result.analysis_paths)
 ```
 
-### CLI 命令行
+注意：
+`run_full_pipeline(...)` 现在仍可用于实验和回归，但它只是兼容层，不代表最终产品形态。
+
+### CLI
 
 ```bash
-# 基本解析
-python examples/basic_parse.py your_file.psd
-
-# 完整流程
+python -m skills.cli --help
 python -m skills.cli process design.psd --output ./output
-
-# 指定策略
 python -m skills.cli process design.psd --strategy SMART_MERGE --formats png,webp
-
-# Mock 模式测试（无需 PSD 文件）
-python -m pytest skills/psd-parser/level9_integration/ -v
+python examples/basic_parse.py design.psd
 ```
 
----
+## 当前兼容层输出
 
-## 🏛️ 架构图
+旧 pipeline 当前仍会输出一套过渡型目录：
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        PSD 文件输入                               │
-└─────────────────────────────────────────────────────────────────┘
-                                │
-                                ▼
-┌─────────────────────────────────────────────────────────────────┐
-│  Level 1: PSD 解析层                                              │
-│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌───────┐ │
-│  │Page提取器│ │Layer读取器│ │层级构建器│ │隐藏标记器│ │锁定检测│ │
-│  └──────────┘ └──────────┘ └──────────┘ └──────────┘ └───────┘ │
-└─────────────────────────────────────────────────────────────────┘
-                                │
-                                ▼
-┌─────────────────────────────────────────────────────────────────┐
-│  Level 2: 分类层                                                  │
-│  ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ ┌──────────┐    │
-│  │图片分类│ │文字分类│ │矢量分类│ │组分类  │ │装饰分类  │    │
-│  └────────┘ └────────┘ └────────┘ └────────┘ └──────────┘    │
-└─────────────────────────────────────────────────────────────────┘
-                                │
-                                ▼
-┌─────────────────────────────────────────────────────────────────┐
-│  Level 3: 识别层                                                  │
-│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌───────┐ │
-│  │截图捕获器│ │区域检测器│ │组件命名器│ │边界分析器│ │功能分析│ │
-│  └──────────┘ └──────────┘ └──────────┘ └──────────┘ └───────┘ │
-└─────────────────────────────────────────────────────────────────┘
-                                │
-                                ▼
-┌─────────────────────────────────────────────────────────────────┐
-│  Level 4: 策略层                                                  │
-│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐           │
-│  │画布分析器│ │策略选择器│ │重叠检测器│ │质量评估器│           │
-│  └──────────┘ └──────────┘ └──────────┘ └──────────┘           │
-└─────────────────────────────────────────────────────────────────┘
-                                │
-                                ▼
-┌─────────────────────────────────────────────────────────────────┐
-│  Level 5: 导出层                                                  │
-│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐           │
-│  │资产导出器│ │格式转换器│ │命名管理器│ │元数据附加│           │
-│  └──────────┘ └──────────┘ └──────────┘ └──────────┘           │
-└─────────────────────────────────────────────────────────────────┘
-                                │
-                                ▼
-┌─────────────────────────────────────────────────────────────────┐
-│  Level 6-8: 提取/生成/文档层                                      │
-│  ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐       │
-│  │文字提取│ │样式提取│ │规格生成│ │文档生成│ │预览生成│       │
-│  └────────┘ └────────┘ └────────┘ └────────┘ └────────┘       │
-└─────────────────────────────────────────────────────────────────┘
-                                │
-                                ▼
-┌─────────────────────────────────────────────────────────────────┐
-│  输出: PNG/JPG/WebP/SVG 资源 + CSS/Tailwind/iOS/Android 规格     │
-│       + README/CHANGELOG/Manifest/HTML 文档                      │
-└─────────────────────────────────────────────────────────────────┘
+```text
+output/
+|-- assets/
+|   `-- png/
+|-- config/
+|   `-- png/
+|       |-- manifest.json
+|       `-- *.meta.json
+`-- docs/
+    |-- page-analysis.json
+    |-- page-tree.md
+    |-- component-tree.json
+    |-- component-tree.md
+    `-- page-preview.png
 ```
 
----
+这套输出仍然有价值，但它只是过渡产物：
 
-## 🧪 测试
+- 适合调试
+- 适合回归对照
+- 不适合作为最终前端/美术交付协议
+
+## 已验证的试运行方式
+
+围绕真实 PSD，我们已经跑出了一套更接近 V2 的试运行包，核心思路是：
+
+1. 先锁定一个模块
+2. 先出页面理解和模块树
+3. 再出组件计划与资源计划
+4. 再出 `resource-task-list`
+5. 再按 worker 并发切图
+6. 最后生成真实 `resources/png/index.json`
+
+这套方式已经被用于“设置弹窗模块”的试运行验证。
+
+## 测试
+
+跑完整测试：
 
 ```bash
-# 运行所有级别测试
-cd skills/psd-parser
-python -m pytest level1-parse/test_level1.py -v
-python -m pytest level2_classify/ -v
-python -m pytest level3_recognize/ -v
-python -m pytest level4_strategy/ -v
-python -m pytest level5_export/ -v
-python -m pytest level6_extractor/ -v
-python -m pytest level7_generator/ -v
-python -m pytest level8_documentation/ -v
-python -m pytest level9_integration/ -v
-
-# Mock 模式测试（无需 PSD 文件）
-python -m pytest level9_integration/ -v --mock
+python -m pytest skills/psd-parser -q
 ```
 
----
+常用冒烟检查：
 
-## 📚 文档
+```bash
+python -m compileall skills examples
+python -m skills.cli --help
+python examples/basic_parse.py
+```
 
-| 文档 | 说明 |
-|------|------|
-| [USER_GUIDE.md](./docs/USER_GUIDE.md) | 用户指南 |
-| [usage.md](./docs/usage.md) | 详细使用文档 |
-| [CHANGELOG.md](./docs/CHANGELOG.md) | 变更日志 |
-| [VERSION-PLAN.md](./docs/VERSION-PLAN.md) | 版本计划 |
-| [CLAUDE.md](./docs/CLAUDE.md) | Claude 集成指南 |
+## 当前结论
 
----
-
-## 🤝 贡献
-
-欢迎提交 Issue 和 Pull Request！
-
----
-
-## 📄 许可证
-
-MIT License
+- 组件分解应由 AI 主导，而不是由图层结构主导
+- 切图必须经过“资源任务单”这一层
+- 并发 worker 是正式工作流的一部分，不是临时技巧
+- 旧 pipeline 继续保留，但不再承载未来架构

@@ -153,8 +153,13 @@ class Logger:
             '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
             datefmt='%Y-%m-%d %H:%M:%S'
         )
-        
+
         if console:
+            try:
+                if hasattr(sys.stdout, "reconfigure"):
+                    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+            except Exception:
+                pass
             console_handler = logging.StreamHandler(sys.stdout)
             console_handler.setFormatter(formatter)
             self.logger.addHandler(console_handler)

@@ -31,3 +31,10 @@ Thumbs.db
 .pytest_cache/
 .coverage
 htmlcov/
+
+# Local PSD inputs and generated outputs
+input/*
+!input/real-psd/
+input/real-psd/*
+!input/real-psd/.gitkeep
+output/

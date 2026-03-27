@@ -1,24 +1,24 @@
-# PSD Smart Cut - 依赖
+# PSD Smart Cut dependencies
 
-# PSD 解析
-psd-tools>=2.0.0
+# PSD parsing
+psd-tools>=1.14.0
 
-# 图片处理
+# Image processing
 Pillow>=8.0.0
 
-# YAML 配置
+# YAML configuration
 PyYAML>=6.0
 
-# 数据验证
+# Data validation
 pydantic>=2.0.0
 
-# AI 视觉识别 (可选)
-openai>=1.0.0
-minimax-api>=1.0.0
+# Optional AI dependencies:
+# openai>=1.0.0
+# minimax-api>=1.0.0
 
-# 测试
+# Testing
 pytest>=7.0.0
 pytest-cov>=4.0.0
 
-# 工具
+# Utilities
 python-dateutil>=2.8.0

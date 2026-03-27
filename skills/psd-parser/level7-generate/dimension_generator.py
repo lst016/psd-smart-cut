@@ -9,6 +9,19 @@ from skills.common import get_logger, get_config, get_error_handler, ErrorCatego
 
 # ============ 数据类 ============
 
+class MeasuredInt(int):
+    """Int-like value that also preserves the original float measurement."""
+
+    def __new__(cls, display_value: int, actual_value: Optional[float] = None):
+        obj = int.__new__(cls, display_value)
+        obj._actual_value = float(display_value if actual_value is None else actual_value)
+        return obj
+
+    @property
+    def value(self) -> float:
+        return self._actual_value
+
+
 @dataclass
 class DimensionSpec:
     """尺寸规格"""
@@ -62,9 +75,10 @@ class UnitConverter:
 class DimensionGenerator:
     """尺寸生成器"""
     
-    def __init__(self, config: Optional[Dict] = None):
+    def __init__(self, config: Optional[Dict] = None, mock_mode: bool = False):
         self.logger = get_logger("dimension-generator")
         self.config = config or {}
+        self.mock_mode = mock_mode
         self.error_handler = get_error_handler()
         
         # 响应式断点配置
@@ -78,7 +92,7 @@ class DimensionGenerator:
         # 缩放因子
         self.default_scale_factors = self.config.get("scale_factors", [1.0, 2.0, 3.0])
     
-    def generate(self, layer_info: Dict, unit: str = "px") -> DimensionSpec:
+    def generate(self, layer_info: Optional[Dict] = None, unit: str = "px", **kwargs) -> DimensionSpec:
         """
         生成单个图层的尺寸规格
         
@@ -90,9 +104,25 @@ class DimensionGenerator:
             DimensionSpec: 尺寸规格对象
         """
         try:
+            if layer_info is None:
+                layer_info = {}
+            elif not isinstance(layer_info, dict):
+                layer_info = {
+                    "width": getattr(layer_info, "width", 0),
+                    "height": getattr(layer_info, "height", 0),
+                }
+
+            if kwargs:
+                layer_info = {**layer_info, **kwargs}
             # 提取尺寸信息
             width = layer_info.get("width", 0)
             height = layer_info.get("height", 0)
+            scale = float(layer_info.get("scale", 1.0) or 1.0)
+
+            actual_width = width * scale
+            actual_height = height * scale
+            width = MeasuredInt(int(actual_width), actual_width)
+            height = MeasuredInt(int(actual_height), actual_height)
             
             if width <= 0 or height <= 0:
                 self.logger.warning(f"无效尺寸: {width}x{height}")

@@ -1,77 +1,72 @@
 #!/usr/bin/env python3
-"""
-PSD Smart Cut - 示例脚本
-基本 PSD 解析
-"""
+"""Basic PSD parsing example for PSD Smart Cut."""
 
-import sys
+from __future__ import annotations
+
 import os
+import sys
 
-# 添加项目路径
+# Allow running the example directly from the repository root.
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from skills.psd_parser.level1_parse import parse_psd, extract_pages, read_layers, LayerFilter
+from skills.psd_parser.level1_parse import LayerFilter, extract_pages, parse_psd, read_layers
 
 
-def main():
+def main() -> None:
     if len(sys.argv) < 2:
-        print("用法: python basic_parse.py <psd文件路径>")
-        sys.exit(1)
-    
+        print("Usage: python examples/basic_parse.py <path-to-psd>")
+        raise SystemExit(1)
+
     file_path = sys.argv[1]
-    
     if not os.path.exists(file_path):
-        print(f"文件不存在: {file_path}")
-        sys.exit(1)
-    
+        print(f"File not found: {file_path}")
+        raise SystemExit(1)
+
     print("=" * 50)
-    print("PSD Smart Cut - 基本解析示例")
+    print("PSD Smart Cut - Basic Parse Example")
     print("=" * 50)
-    
-    # 1. 解析 PSD
-    print(f"\n[1] 解析 PSD 文件: {file_path}")
+
+    print(f"\n[1] Parsing PSD file: {file_path}")
     document = parse_psd(file_path)
-    print(f"    版本: {document.version}")
-    print(f"    尺寸: {document.width} x {document.height}")
-    print(f"    Page 数: {document.get_page_count()}")
-    print(f"    Layer 数: {document.total_layers}")
-    
-    # 2. 提取 Page
-    print(f"\n[2] 提取 Page 信息")
-    result = extract_pages(file_path)
-    print(f"    Page 数: {result.page_count}")
-    for page in result.pages:
-        print(f"    - Page {page['index']}: {page['name']} ({page['width']}x{page['height']})")
-    
-    # 3. 读取 Layer
-    print(f"\n[3] 读取 Layer 信息")
-    result = read_layers(file_path, page_index=0, filter_type=LayerFilter.ALL)
-    print(f"    Layer 数: {result.layer_count}")
-    
-    # 按类型统计
-    kind_count = {}
-    for layer_dict in result.layers:
-        kind = layer_dict['kind']
+    print(f"    Version: {document.version}")
+    print(f"    Size: {document.width} x {document.height}")
+    print(f"    Pages: {document.page_count}")
+    print(f"    Layers: {document.total_layers}")
+
+    print("\n[2] Extracting pages")
+    page_result = extract_pages(file_path)
+    print(f"    Pages found: {page_result.page_count}")
+    for page in page_result.pages:
+        print(
+            f"    - Page {page['index']}: {page['name']} "
+            f"({page['width']}x{page['height']})"
+        )
+
+    print("\n[3] Reading all layers on page 0")
+    all_layers = read_layers(file_path, page_index=0, filter_type=LayerFilter.ALL)
+    print(f"    Total layers: {all_layers.layer_count}")
+
+    kind_count: dict[str, int] = {}
+    for layer in all_layers.layers:
+        kind = layer["kind"]
         kind_count[kind] = kind_count.get(kind, 0) + 1
-    
-    print(f"    类型分布:")
-    for kind, count in kind_count.items():
+
+    print("    Layer types:")
+    for kind, count in sorted(kind_count.items()):
         print(f"    - {kind}: {count}")
-    
-    # 4. 读取可见 Layer
-    print(f"\n[4] 读取可见 Layer")
-    result_visible = read_layers(file_path, page_index=0, filter_type=LayerFilter.VISIBLE)
-    print(f"    可见 Layer 数: {result_visible.layer_count}")
-    
-    # 5. 读取隐藏 Layer
-    print(f"\n[5] 读取隐藏 Layer")
-    result_hidden = read_layers(file_path, page_index=0, filter_type=LayerFilter.HIDDEN)
-    print(f"    隐藏 Layer 数: {result_hidden.layer_count}")
-    for layer in result_hidden.layers[:5]:  # 只显示前 5 个
+
+    print("\n[4] Reading visible layers")
+    visible_layers = read_layers(file_path, page_index=0, filter_type=LayerFilter.VISIBLE)
+    print(f"    Visible layers: {visible_layers.layer_count}")
+
+    print("\n[5] Reading hidden layers")
+    hidden_layers = read_layers(file_path, page_index=0, filter_type=LayerFilter.HIDDEN)
+    print(f"    Hidden layers: {hidden_layers.layer_count}")
+    for layer in hidden_layers.layers[:5]:
         print(f"    - {layer['name']} (id: {layer['id']})")
-    
+
     print("\n" + "=" * 50)
-    print("解析完成!")
+    print("Done.")
     print("=" * 50)
 
 

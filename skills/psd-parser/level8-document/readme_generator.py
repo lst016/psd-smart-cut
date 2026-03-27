@@ -4,6 +4,7 @@ README 生成器
 """
 from typing import Dict, List, Optional
 from pathlib import Path
+import locale
 import re
 import sys
 import os
@@ -308,7 +309,8 @@ exporter.export(layers, output_dir="./output")
             path = Path(output_path)
             path.parent.mkdir(parents=True, exist_ok=True)
             
-            with open(path, "w", encoding="utf-8") as f:
+            encoding = locale.getpreferredencoding(False) or "utf-8"
+            with open(path, "w", encoding=encoding) as f:
                 f.write(content)
             
             self.logger.info(f"README 已保存到: {output_path}")

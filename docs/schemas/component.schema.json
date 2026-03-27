@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://psd-smart-cut.local/schemas/component.schema.json",
+  "title": "ComponentModel",
+  "description": "Reusable frontend-facing component contract for V2. Components reference resources and define subparts, states, and text slots.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "component_id",
+    "component_key",
+    "component_type",
+    "display_name"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "2.0"
+    },
+    "component_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "component_key": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9_-]*$"
+    },
+    "component_type": {
+      "type": "string",
+      "minLength": 1
+    },
+    "display_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "component_role": {
+      "type": "string"
+    },
+    "summary": {
+      "type": "string"
+    },
+    "subparts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/subpart"
+      },
+      "default": []
+    },
+    "states": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/state"
+      },
+      "default": []
+    },
+    "text_specs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/textSpec"
+      },
+      "default": []
+    },
+    "resource_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/resourceRef"
+      },
+      "default": []
+    },
+    "frontend_hints": {
+      "type": "object",
+      "additionalProperties": true,
+      "default": {}
+    }
+  },
+  "$defs": {
+    "subpart": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["part_id", "part_key", "part_type"],
+      "properties": {
+        "part_id": { "type": "string", "minLength": 1 },
+        "part_key": { "type": "string", "pattern": "^[a-z0-9][a-z0-9_-]*$" },
+        "part_type": { "type": "string", "minLength": 1 },
+        "role": { "type": "string" },
+        "resource_ref": { "$ref": "#/$defs/resourceRef" },
+        "text_slot": { "type": "string" }
+      }
+    },
+    "state": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state_key"],
+      "properties": {
+        "state_key": { "type": "string", "pattern": "^[a-z0-9][a-z0-9_-]*$" },
+        "display_name": { "type": "string" },
+        "resource_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/resourceRef"
+          },
+          "default": []
+        }
+      }
+    },
+    "textSpec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["slot_key", "editable"],
+      "properties": {
+        "slot_key": { "type": "string", "pattern": "^[a-z0-9][a-z0-9_-]*$" },
+        "editable": { "type": "boolean" },
+        "default_text": { "type": "string" },
+        "style_role": { "type": "string" },
+        "baked_into_artwork": { "type": "boolean", "default": false }
+      }
+    },
+    "resourceRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["resource_id", "role"],
+      "properties": {
+        "resource_id": { "type": "string", "minLength": 1 },
+        "role": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}
